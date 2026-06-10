@@ -1,0 +1,6 @@
+{
+  "name": "AlgoForge",
+  "description": "A web-based algorithmic trading research platform and strategy backtester.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
