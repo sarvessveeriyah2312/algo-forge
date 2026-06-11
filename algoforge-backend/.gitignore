@@ -8,7 +8,7 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
-*.pyc
+
 
 # Distribution / packaging
 dist/
