@@ -17,6 +17,7 @@ class BacktestRunCreate(BaseModel):
     spread: float = Field(default=0.0, ge=0.0)
     commission: float = Field(default=0.0, ge=0.0)
     slippage: float = Field(default=0.0, ge=0.0)
+    time_stop_bars: int = Field(default=0, ge=0)
 
 
 class BacktestRunResponse(BaseModel):
@@ -37,11 +38,15 @@ class BacktestRunResponse(BaseModel):
     # Stats
     net_profit: Optional[float] = None
     total_trades: Optional[int] = None
+    winning_trades: Optional[int] = None
+    losing_trades: Optional[int] = None
     win_rate: Optional[float] = None
     profit_factor: Optional[float] = None
     max_drawdown: Optional[float] = None
+    max_drawdown_pct: Optional[float] = None
     sharpe_ratio: Optional[float] = None
     expectancy: Optional[float] = None
+    avg_trade_duration: Optional[float] = None
     equity_curve: Optional[list[Any]] = None
     log_output: Optional[str] = None
     error_message: Optional[str] = None

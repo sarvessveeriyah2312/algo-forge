@@ -74,3 +74,42 @@ def williams_r(df: pd.DataFrame, period: int = 14) -> pd.Series:
     denom = (highest_high - lowest_low).replace(0, np.nan)
     wr = -100 * (highest_high - df["close"]) / denom
     return wr.rename("williams_r")
+
+
+def adx(df: pd.DataFrame, period: int = 14) -> pd.Series:
+    """
+    Average Directional Index (ADX).
+
+    Measures trend strength on a 0-100 scale.
+    Values < 25 indicate a ranging/sideways market (good for mean reversion).
+    Values > 25 indicate a trending market.
+    """
+    high = df["high"]
+    low = df["low"]
+    close = df["close"]
+
+    # True Range
+    hl = high - low
+    hc = (high - close.shift(1)).abs()
+    lc = (low - close.shift(1)).abs()
+    tr = pd.concat([hl, hc, lc], axis=1).max(axis=1)
+
+    # Directional Movement
+    up_move = high.diff()
+    down_move = -low.diff()
+    plus_dm = up_move.where((up_move > down_move) & (up_move > 0), 0.0)
+    minus_dm = down_move.where((down_move > up_move) & (down_move > 0), 0.0)
+
+    # Wilder's smoothing (com = period-1 is equivalent to Wilder's EMA)
+    tr_smooth = tr.ewm(com=period - 1, adjust=False).mean()
+    plus_dm_s = plus_dm.ewm(com=period - 1, adjust=False).mean()
+    minus_dm_s = minus_dm.ewm(com=period - 1, adjust=False).mean()
+
+    plus_di = 100 * plus_dm_s / tr_smooth.replace(0, np.nan)
+    minus_di = 100 * minus_dm_s / tr_smooth.replace(0, np.nan)
+
+    di_sum = (plus_di + minus_di).replace(0, np.nan)
+    dx = 100 * (plus_di - minus_di).abs() / di_sum
+
+    adx_val = dx.ewm(com=period - 1, adjust=False).mean()
+    return adx_val.rename("adx")

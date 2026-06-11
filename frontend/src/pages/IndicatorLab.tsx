@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Search, 
   Layers, 
@@ -13,20 +13,30 @@ import {
   Compass,
   ArrowRight
 } from 'lucide-react';
-import { INDICATORS_METADATA, MOCK_SIGNAL_PREVIEWS } from '../data/mockData';
+import { MOCK_SIGNAL_PREVIEWS } from '../data/mockData';
 import { IndicatorMetadata, SignalPreview } from '../types/indicator';
 import { CorrelationMatrix } from '../components/charts/CorrelationMatrix';
 import { useToastStore } from '../store/useToastStore';
+import { useIndicatorStore } from '../store/useIndicatorStore';
 
 export const IndicatorLab: React.FC = () => {
   const { addToast } = useToastStore();
+  const { indicators: INDICATORS_METADATA, fetchIndicators } = useIndicatorStore();
+
+  useEffect(() => { fetchIndicators(); }, []);
 
   // Active workspace indicators
-  const [workspaceIndicators, setWorkspaceIndicators] = useState<IndicatorMetadata[]>([
-    INDICATORS_METADATA.find(i => i.id === 'ema')!,
-    INDICATORS_METADATA.find(i => i.id === 'rsi')!,
-    INDICATORS_METADATA.find(i => i.id === 'orderblock')!,
-  ].filter(Boolean));
+  const [workspaceIndicators, setWorkspaceIndicators] = useState<IndicatorMetadata[]>([]);
+
+  // Initialise workspace once indicators are available (handles both static + API data)
+  useEffect(() => {
+    if (workspaceIndicators.length > 0 || INDICATORS_METADATA.length === 0) return;
+    setWorkspaceIndicators(
+      ['ema', 'rsi', 'orderblock']
+        .map(id => INDICATORS_METADATA.find(i => i.id === id)!)
+        .filter(Boolean)
+    );
+  }, [INDICATORS_METADATA]);
 
   // Search parameters
   const [searchQuery, setSearchQuery] = useState('');

@@ -19,6 +19,7 @@ class ExitReasonEnum(str, enum.Enum):
     SL = "SL"
     SIGNAL = "SIGNAL"
     EOD = "EOD"
+    TIME = "TIME"
 
 
 class Trade(Base):

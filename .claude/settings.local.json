@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ln -s '/c/Program Files/Python314/python.exe' /usr/bin/python3)",
+      "Bash(command -v python3)",
+      "Bash(mkdir -p ~/bin)",
+      "Bash(printf '#!/bin/bash\\\\nexec \"/c/Program Files/Python314/python.exe\" \"$@\"\\\\n')",
+      "Bash(chmod +x ~/bin/python3)",
+      "Read(//c/Users/User/**)",
+      "Bash(echo 'export PATH=\"$HOME/bin:$PATH\"')",
+      "Bash(winget install *)",
+      "Bash(\"/c/Users/User/Documents/algo-forge/algoforge-backend/venv/Scripts/pip\" install *)",
+      "Bash(sed -i \"s|alias python3=.*|alias python3='/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe'|\" ~/bin/python3)",
+      "Bash(printf '#!/bin/bash\\\\nexec \"/c/Users/User/AppData/Local/Programs/Python/Python312/python.exe\" \"$@\"\\\\n')",
+      "Bash(cmd.exe /c \"where python3.12\")",
+      "Bash(cmd.exe /c 'dir /b \"C:\\\\Users\\\\User\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\\" 2>nul')",
+      "Bash(cmd.exe /c 'dir /b \"C:\\\\Program Files\\\\Python312\\\\\" 2>nul')",
+      "Bash(~/bin/python3 --version)",
+      "Bash(xargs grep -l \"tick\\\\|stream\\\\|real.time\")",
+      "Bash(venv/Scripts/alembic revision *)",
+      "Bash(venv/Scripts/alembic upgrade *)",
+      "Bash(xargs cat)",
+      "Bash(npx tsc *)",
+      "Bash(dir C:\\\\Users\\\\User\\\\Documents\\\\algo-forge *)",
+      "Bash(git push *)"
+    ]
+  }
+}

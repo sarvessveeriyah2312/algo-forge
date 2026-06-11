@@ -1,0 +1,290 @@
+{
+  "strategy": {
+    "name": "VWAP Mean Reversion + Volume Delta Confirmation",
+    "version": "1.1.0",
+    "instrument": "XAUUSD",
+    "timeframe": "M5",
+    "timeframe_mt5": "TIMEFRAME_M5",
+    "type": "mean_reversion",
+    "mode": "auto",
+    "description": "Fully automated strategy. Python engine reads this JSON, computes all indicators, manages entries/exits, and executes trades directly via MetaTrader5 Python library. No EA required."
+  },
+
+  "mt5_connection": {
+    "platform": "MetaTrader5",
+    "library": "MetaTrader5 Python API",
+    "symbol": "XAUUSD",
+    "timeframe": "mt5.TIMEFRAME_M5",
+    "magic_number": 20250101,
+    "deviation": 20,
+    "comment": "VWAP_MR_v1",
+    "auto_trade": true,
+    "requires_ea": false,
+    "notes": "Python connects directly to MT5 terminal via mt5.initialize() — no bridge or EA needed"
+  },
+
+  "indicators": {
+    "vwap": {
+      "type": "anchored_vwap",
+      "anchor": "daily_midnight",
+      "reset": "00:00 GMT",
+      "formula": "cumulative(typical_price * volume) / cumulative(volume)",
+      "typical_price": "(high + low + close) / 3",
+      "instrument": "XAUUSD",
+      "timeframe": "M5"
+    },
+    "vwap_bands": {
+      "type": "standard_deviation",
+      "formula": "sqrt(sum((typical_price - vwap)^2 * volume) / cumulative_volume)",
+      "instrument": "XAUUSD",
+      "timeframe": "M5",
+      "bands": {
+        "entry_upper": { "multiplier": 1.5, "direction": "short_signal" },
+        "entry_lower": { "multiplier": 1.5, "direction": "long_signal" },
+        "sl_upper":    { "multiplier": 2.5, "direction": "short_invalidation" },
+        "sl_lower":    { "multiplier": 2.5, "direction": "long_invalidation" }
+      }
+    },
+    "volume_delta": {
+      "type": "tick_delta",
+      "formula": "buy_volume - sell_volume",
+      "classification": {
+        "buy_volume":  "trades hitting ask (buyer initiated)",
+        "sell_volume": "trades hitting bid (seller initiated)"
+      },
+      "lookback_bars": 3,
+      "cumulative": true,
+      "instrument": "XAUUSD",
+      "timeframe": "M5"
+    }
+  },
+
+  "entry_conditions": {
+    "instrument": "XAUUSD",
+    "timeframe": "M5",
+    "long": {
+      "condition_1": "close < vwap - (1.5 * std_dev)",
+      "condition_2": "cumulative_delta_last_3_bars > 0",
+      "condition_3": "delta_bar[0] > delta_bar[-1] > delta_bar[-2]",
+      "condition_4": "current_time within kill_zone",
+      "condition_5": "no open position exists",
+      "logic": "ALL conditions must be true"
+    },
+    "short": {
+      "condition_1": "close > vwap + (1.5 * std_dev)",
+      "condition_2": "cumulative_delta_last_3_bars < 0",
+      "condition_3": "delta_bar[0] < delta_bar[-1] < delta_bar[-2]",
+      "condition_4": "current_time within kill_zone",
+      "condition_5": "no open position exists",
+      "logic": "ALL conditions must be true"
+    }
+  },
+
+  "kill_zones": {
+    "london_open": {
+      "start": "08:00 GMT",
+      "end":   "10:00 GMT",
+      "active": true
+    },
+    "new_york_open": {
+      "start": "13:00 GMT",
+      "end":   "15:00 GMT",
+      "active": true
+    },
+    "outside_kill_zone": "discard signal — do not trade"
+  },
+
+  "filters": {
+    "news_filter": {
+      "enabled": true,
+      "buffer_minutes": 30,
+      "rule": "no trades 30 minutes before or after high impact news",
+      "events": ["NFP", "CPI", "FOMC", "Fed speech", "GDP"]
+    },
+    "trend_day_filter": {
+      "enabled": true,
+      "threshold_std_dev": 3.0,
+      "rule": "skip if price moves > 3 std_dev in one direction without reversion",
+      "action": "pause strategy for remainder of session"
+    },
+    "minimum_bars_filter": {
+      "enabled": true,
+      "minimum_bars": 20,
+      "rule": "minimum 20 M5 bars since daily VWAP reset before taking signals",
+      "reason": "VWAP needs sufficient data to be statistically meaningful"
+    }
+  },
+
+  "trade_management": {
+    "instrument": "XAUUSD",
+    "timeframe": "M5",
+    "entry": {
+      "type": "market_order",
+      "mt5_action": "mt5.TRADE_ACTION_DEAL",
+      "price": "mt5.symbol_info_tick('XAUUSD').ask or .bid",
+      "order_type_long":  "mt5.ORDER_TYPE_BUY",
+      "order_type_short": "mt5.ORDER_TYPE_SELL"
+    },
+    "stop_loss": {
+      "level": "2.5 std_dev band + 5 pip buffer",
+      "pip_buffer": 5,
+      "logic": "if price exceeds 2.5 std_dev, mean reversion thesis is invalidated",
+      "trailing": false,
+      "mt5_field": "sl"
+    },
+    "take_profit": {
+      "tp1": {
+        "level": "VWAP midline",
+        "partial_close_pct": 0.50,
+        "action_after": "move SL to breakeven",
+        "mt5_field": "tp",
+        "auto_execute": true
+      },
+      "tp2": {
+        "level": "opposite 1.0 std_dev band",
+        "partial_close_pct": 0.50,
+        "mt5_field": "tp",
+        "auto_execute": true
+      }
+    },
+    "breakeven": {
+      "trigger": "tp1 hit",
+      "move_sl_to": "entry price + 2 pip buffer",
+      "auto_execute": true
+    },
+    "risk_reward": {
+      "minimum": 1.5,
+      "target":  2.0
+    }
+  },
+
+  "risk_management": {
+    "risk_per_trade_pct": 0.01,
+    "lot_size_formula": "(account_balance * risk_per_trade_pct) / (sl_pips * pip_value)",
+    "lot_size_min": 0.01,
+    "lot_size_max": 5.0,
+    "lot_size_step": 0.01,
+    "max_open_trades": 1,
+    "max_daily_loss_pct": 0.03,
+    "max_weekly_loss_pct": 0.06,
+    "action_on_daily_limit": "stop trading for the day — resume next session",
+    "action_on_weekly_limit": "stop trading for the week"
+  },
+
+  "auto_execution": {
+    "enabled": true,
+    "mode": "live",
+    "on_signal_long": [
+      "calculate lot size from risk_management",
+      "get ask price from mt5.symbol_info_tick",
+      "calculate sl = vwap - (2.5 * std_dev) - pip_buffer",
+      "calculate tp1 = vwap midline",
+      "calculate tp2 = vwap + (1.0 * std_dev)",
+      "send BUY order via mt5.order_send()",
+      "log trade to SQLite"
+    ],
+    "on_signal_short": [
+      "calculate lot size from risk_management",
+      "get bid price from mt5.symbol_info_tick",
+      "calculate sl = vwap + (2.5 * std_dev) + pip_buffer",
+      "calculate tp1 = vwap midline",
+      "calculate tp2 = vwap - (1.0 * std_dev)",
+      "send SELL order via mt5.order_send()",
+      "log trade to SQLite"
+    ],
+    "on_tp1_hit": [
+      "close 50% of position via mt5.order_send() with partial volume",
+      "modify remaining position SL to breakeven via mt5.order_send(TRADE_ACTION_SLTP)",
+      "update trade log"
+    ],
+    "on_tp2_hit": [
+      "close remaining 50% of position",
+      "update trade log",
+      "set state to WAITING"
+    ],
+    "on_sl_hit": [
+      "position closed automatically by broker",
+      "log loss",
+      "set state to WAITING"
+    ]
+  },
+
+  "backtest": {
+    "instrument": "XAUUSD",
+    "timeframe": "M5",
+    "timeframe_mt5": "mt5.TIMEFRAME_M5",
+    "start_date": "2022-01-01",
+    "end_date":   "2024-12-31",
+    "data_source": "mt5.copy_rates_range('XAUUSD', mt5.TIMEFRAME_M5, start, end)",
+    "initial_balance": 10000,
+    "currency": "USD",
+    "validation": {
+      "in_sample":     { "start": "2022-01-01", "end": "2023-12-31" },
+      "out_of_sample": { "start": "2024-01-01", "end": "2024-12-31" },
+      "walk_forward": {
+        "window_months": 3,
+        "step_months": 1
+      }
+    },
+    "acceptance_criteria": {
+      "win_rate":       0.52,
+      "sharpe_ratio":   1.0,
+      "max_drawdown":   0.15,
+      "min_trades":     200,
+      "profit_factor":  1.3,
+      "expectancy_r":   0.3
+    }
+  },
+
+  "state_machine": {
+    "states": ["WAITING", "ALERT", "SIGNAL", "EXECUTE", "IN_TRADE"],
+    "transitions": {
+      "WAITING":  { "trigger": "price reaches 1.5 std_dev band",       "next": "ALERT"    },
+      "ALERT":    { "trigger": "delta confirms absorption",             "next": "SIGNAL",
+                    "fallback": "price retreats without confirmation",  "fallback_next": "WAITING" },
+      "SIGNAL":   { "trigger": "kill zone active",                      "next": "EXECUTE",
+                    "fallback": "outside kill zone",                    "fallback_next": "WAITING" },
+      "EXECUTE":  { "trigger": "mt5.order_send() success",             "next": "IN_TRADE" },
+      "IN_TRADE": {
+        "tp1_hit": "close 50%, move SL to BE, stay IN_TRADE",
+        "tp2_hit": "close 50%, go to WAITING",
+        "sl_hit":  "log loss, go to WAITING"
+      }
+    }
+  },
+
+  "logging": {
+    "enabled": true,
+    "storage": "SQLite",
+    "log_fields": [
+      "timestamp", "instrument", "timeframe", "direction",
+      "entry_price", "sl", "tp1", "tp2",
+      "lot_size", "vwap_at_entry", "std_dev_at_entry",
+      "delta_at_entry", "kill_zone", "exit_price",
+      "exit_reason", "pnl_pips", "pnl_usd", "result"
+    ]
+  },
+
+  "performance_targets": {
+    "win_rate":         "54% - 58%",
+    "avg_rr":           "1:1.8",
+    "expectancy":       "+0.45R per trade",
+    "trades_per_month": "10 - 20",
+    "monthly_return_r": "6 - 11R",
+    "max_drawdown":     "< 15%"
+  },
+
+  "best_trading_days": ["Monday", "Tuesday", "Thursday"],
+  "avoid_days":        ["High impact news days", "Friday after 18:00 GMT"],
+
+  "tech_stack": {
+    "language":        "Python 3.10+",
+    "mt5_library":     "MetaTrader5 (pip install MetaTrader5)",
+    "data_layer":      "mt5.copy_rates_range() + mt5.copy_ticks_range()",
+    "computation":     "Pandas + NumPy",
+    "backtest_engine": "FastAPI + SQLite",
+    "frontend":        "Next.js",
+    "execution":       "mt5.order_send() — direct, no EA",
+    "os_requirement":  "Windows (MT5 terminal must be running)"
+  }
+}

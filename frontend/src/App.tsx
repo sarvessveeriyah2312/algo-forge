@@ -6,7 +6,9 @@ import { StrategyBuilder } from './pages/StrategyBuilder';
 import { IndicatorLab } from './pages/IndicatorLab';
 import { Backtest } from './pages/Backtest';
 import { Results } from './pages/Results';
+import { ResultsList } from './pages/ResultsList';
 import { Settings } from './pages/Settings';
+import { Strategies } from './pages/Strategies';
 import { Login } from './pages/Login';
 import { useAuthStore } from './store/useAuthStore';
 import { useStrategyStore } from './store/useStrategyStore';
@@ -38,10 +40,12 @@ export default function App() {
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/builder" element={<StrategyBuilder />} />
+          <Route path="/strategies" element={<Strategies />} />
+          <Route path="/strategies/:strategyId" element={<StrategyBuilder />} />
           <Route path="/indicator-lab" element={<IndicatorLab />} />
           <Route path="/backtest" element={<Backtest />} />
-          <Route path="/results" element={<Results />} />
+          <Route path="/results" element={<ResultsList />} />
+          <Route path="/results/:runId" element={<Results />} />
           <Route path="/settings" element={<Settings />} />
           {/* Wildcard redirect fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />

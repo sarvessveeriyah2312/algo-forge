@@ -24,13 +24,15 @@ class Indicator(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
+    slug: Mapped[str] = mapped_column(String(100), unique=True, nullable=False, index=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     category: Mapped[IndicatorCategoryEnum] = mapped_column(
         Enum(IndicatorCategoryEnum, name="indicatorcategoryenum"),
         nullable=False,
     )
-    parameters: Mapped[dict[str, Any]] = mapped_column(JSON, nullable=False, default=dict)
+    parameters: Mapped[list[Any]] = mapped_column(JSON, nullable=False, default=list)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    sort_order: Mapped[int] = mapped_column(nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )

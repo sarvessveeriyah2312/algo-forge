@@ -1,12 +1,14 @@
 export interface BacktestConfig {
   strategyId: string;
   instruments: string[]; // multi-select checkbox pairs
+  timeframe: string;
   dateFrom: string;
   dateTo: string;
   initialCapital: number;
   spread: number;
   commission: number;
   slippage: number;
+  timeStopBars: number;
 }
 
 export interface BacktestLog {
@@ -20,6 +22,7 @@ export interface BacktestTrade {
   id: string;
   index: number;
   date: string;
+  closeDate?: string;
   pair: string;
   direction: 'LONG' | 'SHORT';
   entryPrice: number;
@@ -27,6 +30,8 @@ export interface BacktestTrade {
   pips: number;
   pnl: number;
   balance: number;
+  exitReason?: 'TP' | 'SL' | 'SIGNAL' | 'EOD' | 'TIME';
+  lotSize?: number;
 }
 
 export interface BacktestSummaryMetrics {

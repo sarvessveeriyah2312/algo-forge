@@ -45,6 +45,8 @@ const INDICATOR_NAME_MAP: Record<string, string> = {
   stochastic: 'Stochastic Oscillator',
   cci: 'Commodity Channel Index (CCI)',
   vwap: 'Volume Weighted Average Price (VWAP)',
+  vwap_upper_touch: 'VWAP Upper Band Touch',
+  vwap_lower_touch: 'VWAP Lower Band Touch',
   supertrend: 'Supertrend',
   fvg: 'Fair Value Gap (FVG)',
   orderblock: 'Order Block (OB)',
@@ -53,6 +55,7 @@ const INDICATOR_NAME_MAP: Record<string, string> = {
   obv: 'On-Balance Volume (OBV)',
   cmf: 'Chaikin Money Flow (CMF)',
   williams_r: "Williams %R",
+  adx: 'Average Directional Index (ADX)',
   keltner: 'Keltner Channels',
 };
 
@@ -167,6 +170,7 @@ export const tradeFromBackend = (t: any): BacktestTrade => ({
   id: t.id,
   index: t.trade_number,
   date: t.open_time ? new Date(t.open_time).toLocaleString() : '',
+  closeDate: t.close_time ? new Date(t.close_time).toLocaleString() : undefined,
   pair: t.instrument,
   direction: t.direction as 'LONG' | 'SHORT',
   entryPrice: t.entry_price,
@@ -174,4 +178,6 @@ export const tradeFromBackend = (t: any): BacktestTrade => ({
   pips: t.pips,
   pnl: t.profit,
   balance: t.running_balance,
+  exitReason: t.exit_reason as BacktestTrade['exitReason'],
+  lotSize: t.lot_size,
 });

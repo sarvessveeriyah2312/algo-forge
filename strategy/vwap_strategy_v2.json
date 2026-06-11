@@ -1,0 +1,575 @@
+{
+  "strategy": {
+    "name": "VWAP Mean Reversion + Volume Delta Confirmation",
+    "version": "2.1.0",
+    "type": "mean_reversion",
+    "mode": "auto",
+    "description": "v2.1 — multi-instrument + multi-timeframe config. Python engine loops instruments array, applies per-symbol params, executes directly via MetaTrader5 library.",
+    "changelog_from_v2": [
+      "ADDED: instruments[] array — per-symbol params (spread, multipliers, pip_value, kill_zones, ADX threshold)",
+      "ADDED: timeframe_config — execution/confirmation/htf_bias/macro_bias/backtest_all",
+      "ADDED: mt5_timeframe_map — string to mt5.TIMEFRAME_XX lookup for Python engine",
+      "ADDED: multi_instrument_rules — how Python engine loops and manages positions per symbol",
+      "CHANGED: strategy.instrument removed — now driven by instruments[] array",
+      "CHANGED: strategy.timeframe removed — now driven by timeframe_config.execution",
+      "CHANGED: mt5_connection.symbol removed — engine iterates instruments[]",
+      "CHANGED: backtest now references instruments[] and timeframe_config.backtest_all"
+    ]
+  },
+
+  "timeframe_config": {
+    "execution":    "M5",
+    "confirmation": "M15",
+    "htf_bias":     "H1",
+    "macro_bias":   "H4",
+    "backtest_all": ["M5", "M15", "M30"],
+    "notes": {
+      "execution":    "Signal trigger and order entry timeframe",
+      "confirmation": "M15 must agree with signal before M5 entry fires",
+      "htf_bias":     "H1 EMA50 determines preferred direction (long/short bias)",
+      "macro_bias":   "H4 trend filters out counter-macro trades — optional, high-conviction filter",
+      "backtest_all": "Run full backtest on all three, keep timeframe with best Sharpe + profit factor"
+    }
+  },
+
+  "mt5_timeframe_map": {
+    "M1":  "mt5.TIMEFRAME_M1",
+    "M5":  "mt5.TIMEFRAME_M5",
+    "M15": "mt5.TIMEFRAME_M15",
+    "M30": "mt5.TIMEFRAME_M30",
+    "H1":  "mt5.TIMEFRAME_H1",
+    "H4":  "mt5.TIMEFRAME_H4",
+    "D1":  "mt5.TIMEFRAME_D1"
+  },
+
+  "instruments": [
+    {
+      "symbol": "XAUUSD",
+      "enabled": true,
+      "description": "Gold — primary instrument, institutional VWAP benchmark",
+      "pip_value_per_lot": 1.0,
+      "point": 0.01,
+      "min_volume": 0.01,
+      "max_volume": 5.0,
+      "volume_step": 0.01,
+      "magic_number": 20250201,
+      "max_spread": 0.35,
+      "max_spread_unit": "USD",
+      "adx_threshold": 25,
+      "time_stop_bars": 36,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.3, "sl_mult": 2.2 },
+        "normal":   { "entry_mult": 1.5, "sl_mult": 2.5 },
+        "high_vol": { "entry_mult": 1.8, "sl_mult": 3.0 }
+      },
+      "kill_zones": {
+        "london_open":   { "start": "08:00 GMT", "end": "10:00 GMT", "active": true },
+        "new_york_open": { "start": "13:00 GMT", "end": "15:00 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_usd": 0.25,
+        "commission_per_lot_roundtrip": 7.0,
+        "slippage_pips": 1.0
+      }
+    },
+    {
+      "symbol": "EURUSD",
+      "enabled": true,
+      "description": "Euro/USD — most liquid forex pair, clean VWAP behavior",
+      "pip_value_per_lot": 10.0,
+      "point": 0.00001,
+      "min_volume": 0.01,
+      "max_volume": 10.0,
+      "volume_step": 0.01,
+      "magic_number": 20250202,
+      "max_spread": 0.00015,
+      "max_spread_unit": "price",
+      "adx_threshold": 20,
+      "time_stop_bars": 48,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.2, "sl_mult": 2.0 },
+        "normal":   { "entry_mult": 1.3, "sl_mult": 2.2 },
+        "high_vol": { "entry_mult": 1.6, "sl_mult": 2.8 }
+      },
+      "kill_zones": {
+        "london_open":   { "start": "08:00 GMT", "end": "10:00 GMT", "active": true },
+        "new_york_open": { "start": "13:00 GMT", "end": "15:00 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_pips": 0.2,
+        "commission_per_lot_roundtrip": 7.0,
+        "slippage_pips": 0.3
+      }
+    },
+    {
+      "symbol": "GBPUSD",
+      "enabled": true,
+      "description": "Cable — volatile London sessions, strong absorption signals",
+      "pip_value_per_lot": 10.0,
+      "point": 0.00001,
+      "min_volume": 0.01,
+      "max_volume": 10.0,
+      "volume_step": 0.01,
+      "magic_number": 20250203,
+      "max_spread": 0.00020,
+      "max_spread_unit": "price",
+      "adx_threshold": 22,
+      "time_stop_bars": 48,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.3, "sl_mult": 2.2 },
+        "normal":   { "entry_mult": 1.5, "sl_mult": 2.5 },
+        "high_vol": { "entry_mult": 1.8, "sl_mult": 3.0 }
+      },
+      "kill_zones": {
+        "london_open":   { "start": "08:00 GMT", "end": "10:00 GMT", "active": true },
+        "new_york_open": { "start": "13:00 GMT", "end": "15:00 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_pips": 0.4,
+        "commission_per_lot_roundtrip": 7.0,
+        "slippage_pips": 0.5
+      }
+    },
+    {
+      "symbol": "USDJPY",
+      "enabled": true,
+      "description": "USD/JPY — Asian + NY overlap adds extra session opportunities",
+      "pip_value_per_lot": 9.0,
+      "point": 0.001,
+      "min_volume": 0.01,
+      "max_volume": 10.0,
+      "volume_step": 0.01,
+      "magic_number": 20250204,
+      "max_spread": 0.015,
+      "max_spread_unit": "price",
+      "adx_threshold": 22,
+      "time_stop_bars": 48,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.2, "sl_mult": 2.0 },
+        "normal":   { "entry_mult": 1.4, "sl_mult": 2.3 },
+        "high_vol": { "entry_mult": 1.7, "sl_mult": 2.8 }
+      },
+      "kill_zones": {
+        "tokyo_open":    { "start": "00:00 GMT", "end": "02:00 GMT", "active": true },
+        "london_open":   { "start": "08:00 GMT", "end": "10:00 GMT", "active": true },
+        "new_york_open": { "start": "13:00 GMT", "end": "15:00 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_pips": 0.3,
+        "commission_per_lot_roundtrip": 7.0,
+        "slippage_pips": 0.3
+      }
+    },
+    {
+      "symbol": "US30",
+      "enabled": false,
+      "description": "Dow Jones — excellent VWAP instrument, enable after XAUUSD validated",
+      "pip_value_per_lot": 1.0,
+      "point": 1.0,
+      "min_volume": 0.01,
+      "max_volume": 5.0,
+      "volume_step": 0.01,
+      "magic_number": 20250205,
+      "max_spread": 2.0,
+      "max_spread_unit": "points",
+      "adx_threshold": 25,
+      "time_stop_bars": 24,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.3, "sl_mult": 2.2 },
+        "normal":   { "entry_mult": 1.5, "sl_mult": 2.5 },
+        "high_vol": { "entry_mult": 1.8, "sl_mult": 3.0 }
+      },
+      "kill_zones": {
+        "new_york_open": { "start": "13:30 GMT", "end": "15:30 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_points": 1.5,
+        "commission_per_lot_roundtrip": 5.0,
+        "slippage_points": 1.0
+      }
+    },
+    {
+      "symbol": "NAS100",
+      "enabled": false,
+      "description": "Nasdaq 100 — high volume, clean intraday mean reversion, enable after XAUUSD validated",
+      "pip_value_per_lot": 1.0,
+      "point": 1.0,
+      "min_volume": 0.01,
+      "max_volume": 5.0,
+      "volume_step": 0.01,
+      "magic_number": 20250206,
+      "max_spread": 3.0,
+      "max_spread_unit": "points",
+      "adx_threshold": 25,
+      "time_stop_bars": 24,
+      "vwap_bands": {
+        "low_vol":  { "entry_mult": 1.3, "sl_mult": 2.2 },
+        "normal":   { "entry_mult": 1.5, "sl_mult": 2.5 },
+        "high_vol": { "entry_mult": 1.8, "sl_mult": 3.0 }
+      },
+      "kill_zones": {
+        "new_york_open": { "start": "13:30 GMT", "end": "15:30 GMT", "active": true }
+      },
+      "backtest_costs": {
+        "spread_points": 2.0,
+        "commission_per_lot_roundtrip": 5.0,
+        "slippage_points": 1.5
+      }
+    }
+  ],
+
+  "multi_instrument_rules": {
+    "max_total_open_trades": 2,
+    "max_per_symbol": 1,
+    "correlation_filter": {
+      "enabled": true,
+      "rule": "do not hold EURUSD + GBPUSD long simultaneously — 90%+ correlated",
+      "pairs_to_watch": [
+        ["EURUSD", "GBPUSD"],
+        ["US30", "NAS100"]
+      ],
+      "action": "if correlated pair already in trade, skip new signal on related symbol"
+    },
+    "portfolio_heat": {
+      "max_total_risk_pct": 3.0,
+      "rule": "sum of all open trade risk must not exceed 3% of account at any time"
+    },
+    "processing_order": "loop instruments[] where enabled=true, evaluate signal independently per symbol"
+  },
+
+  "mt5_connection": {
+    "platform": "MetaTrader5",
+    "library": "MetaTrader5 Python API",
+    "timeframe_execution": "mt5.TIMEFRAME_M5",
+    "timeframe_confirmation": "mt5.TIMEFRAME_M15",
+    "timeframe_htf": "mt5.TIMEFRAME_H1",
+    "timeframe_macro": "mt5.TIMEFRAME_H4",
+    "deviation": 20,
+    "comment_prefix": "VWAP_MR_v2",
+    "auto_trade": true,
+    "requires_ea": false,
+    "notes": "magic_number is per-instrument — see instruments[].magic_number"
+  },
+
+  "indicators": {
+    "note": "All indicators computed per instrument using that instrument's execution timeframe",
+    "vwap": {
+      "type": "anchored_vwap",
+      "anchor": "daily_midnight",
+      "reset": "00:00 GMT",
+      "formula": "cumulative(typical_price * volume) / cumulative(volume)",
+      "typical_price": "(high + low + close) / 3",
+      "timeframe": "execution (M5)"
+    },
+    "vwap_bands": {
+      "type": "adaptive_standard_deviation",
+      "formula": "sqrt(sum((typical_price - vwap)^2 * volume) / cumulative_volume)",
+      "timeframe": "execution (M5)",
+      "multipliers": "per instrument — see instruments[].vwap_bands",
+      "atr_volatility_regime": {
+        "atr_period": 14,
+        "atr_baseline_period": 100,
+        "volatility_ratio": "atr_14 / atr_100_avg",
+        "low_vol_threshold": 0.8,
+        "high_vol_threshold": 1.2
+      }
+    },
+    "volume_delta": {
+      "type": "tick_delta",
+      "formula": "buy_volume - sell_volume",
+      "lookback_bars": 3,
+      "cumulative": true,
+      "timeframe": "execution (M5)",
+      "delta_strength_formula": "abs(cumulative_delta_3bars) / avg(abs(delta), 20)"
+    },
+    "m15_confirmation": {
+      "timeframe": "M15",
+      "purpose": "M15 bar must show same directional bias as M5 signal before entry fires",
+      "long_confirm":  "M15 close > M15 VWAP OR M15 delta positive",
+      "short_confirm": "M15 close < M15 VWAP OR M15 delta negative"
+    },
+    "adx_regime": {
+      "type": "ADX",
+      "period": 14,
+      "timeframe": "execution (M5)",
+      "threshold": "per instrument — see instruments[].adx_threshold"
+    },
+    "htf_bias_h1": {
+      "type": "EMA50 slope + price position",
+      "timeframe": "H1",
+      "bullish": "price > EMA50 and slope up — penalize SHORT score by 20",
+      "bearish": "price < EMA50 and slope down — penalize LONG score by 20",
+      "neutral": "no penalty"
+    },
+    "macro_bias_h4": {
+      "type": "EMA200 position",
+      "timeframe": "H4",
+      "bullish": "price > EMA200 — block SHORT signals (optional strict mode)",
+      "bearish": "price < EMA200 — block LONG signals (optional strict mode)",
+      "mode": "penalty (-15 score) by default, strict block optional per instrument"
+    },
+    "rsi_confluence": {
+      "type": "RSI",
+      "period": 14,
+      "timeframe": "execution (M5)",
+      "long_bonus":  "RSI < 30 → +15 signal score",
+      "short_bonus": "RSI > 70 → +15 signal score"
+    }
+  },
+
+  "signal_scoring": {
+    "description": "Scored per instrument independently. Trade only if score >= 60.",
+    "minimum_score_to_trade": 60,
+    "components": {
+      "band_touch":            { "points": 20, "rule": "close beyond adaptive entry band" },
+      "delta_absorption":      { "points": 20, "rule": "3-bar cumulative delta opposes price" },
+      "delta_strength_strong": { "points": 15, "rule": "delta_strength > 2.0" },
+      "m15_confirmation":      { "points": 15, "rule": "M15 bias agrees with M5 signal" },
+      "rsi_extreme":           { "points": 15, "rule": "RSI < 30 long / > 70 short" },
+      "h1_alignment":          { "points": 10, "rule": "H1 EMA50 bias agrees with direction" },
+      "kill_zone":             { "points": 5,  "rule": "inside instrument kill zone" }
+    },
+    "penalties": {
+      "htf_h1_against":   -20,
+      "macro_h4_against": -15,
+      "adx_transitional": -15,
+      "correlated_pair_in_trade": -10,
+      "second_loss_same_day": -10
+    },
+    "risk_scaling": {
+      "score_60_70":  0.005,
+      "score_71_85":  0.010,
+      "score_86_100": 0.015
+    }
+  },
+
+  "entry_conditions": {
+    "note": "Applied per instrument. Params sourced from instruments[] config.",
+    "long": {
+      "condition_1": "close < vwap - (adaptive_entry_mult * std_dev)",
+      "condition_2": "cumulative_delta_last_3_bars > 0",
+      "condition_3": "delta improving over last 3 bars",
+      "condition_4": "M15 confirms long bias",
+      "condition_5": "current_time within instrument kill_zone",
+      "condition_6": "ADX(14) < instrument.adx_threshold",
+      "condition_7": "signal_score >= 60",
+      "condition_8": "spread <= instrument.max_spread",
+      "condition_9": "no open position on this symbol",
+      "condition_10": "portfolio_heat < 3%",
+      "logic": "ALL conditions must be true"
+    },
+    "short": {
+      "condition_1": "close > vwap + (adaptive_entry_mult * std_dev)",
+      "condition_2": "cumulative_delta_last_3_bars < 0",
+      "condition_3": "delta deteriorating over last 3 bars",
+      "condition_4": "M15 confirms short bias",
+      "condition_5": "current_time within instrument kill_zone",
+      "condition_6": "ADX(14) < instrument.adx_threshold",
+      "condition_7": "signal_score >= 60",
+      "condition_8": "spread <= instrument.max_spread",
+      "condition_9": "no open position on this symbol",
+      "condition_10": "portfolio_heat < 3%",
+      "logic": "ALL conditions must be true"
+    }
+  },
+
+  "filters": {
+    "news_filter": {
+      "enabled": true,
+      "buffer_minutes": 30,
+      "events": ["NFP", "CPI", "FOMC", "Fed speech", "GDP", "PPI", "Retail Sales", "PBOC announcements"]
+    },
+    "trend_day_filter": {
+      "enabled": true,
+      "rule": "ADX > instrument.adx_threshold blocks entries; price > 3 std_dev pauses session"
+    },
+    "spread_filter": {
+      "enabled": true,
+      "rule": "skip entry if spread > instrument.max_spread",
+      "check": "mt5.symbol_info(symbol).spread * point"
+    },
+    "minimum_bars_filter": {
+      "enabled": true,
+      "minimum_bars": 20,
+      "note": "20 M5 bars = 100 minutes after VWAP reset"
+    },
+    "consecutive_loss_filter": {
+      "enabled": true,
+      "max_consecutive_losses_per_day": 2,
+      "scope": "per instrument independently"
+    }
+  },
+
+  "trade_management": {
+    "note": "Applied per instrument. Time stop bars from instruments[].time_stop_bars",
+    "entry": {
+      "type": "market_order",
+      "mt5_action": "mt5.TRADE_ACTION_DEAL",
+      "order_type_long":  "mt5.ORDER_TYPE_BUY",
+      "order_type_short": "mt5.ORDER_TYPE_SELL"
+    },
+    "stop_loss": {
+      "level": "adaptive sl_mult band + instrument pip_buffer",
+      "pip_buffer": 5,
+      "trailing": false
+    },
+    "take_profit": {
+      "tp1": { "level": "50% to VWAP", "partial_close_pct": 0.40, "action_after": "SL to BE+2 pips" },
+      "tp2": { "level": "VWAP midline", "partial_close_pct": 0.40 },
+      "tp3_runner": {
+        "level": "opposite 1.0 std_dev band",
+        "partial_close_pct": 0.20,
+        "trailing_stop": "trail at 1.0 std_dev once past VWAP"
+      }
+    },
+    "time_stop": {
+      "enabled": true,
+      "bars": "instrument.time_stop_bars",
+      "rule": "close at market if neither TP1 nor SL hit within N bars"
+    },
+    "breakeven": {
+      "trigger": "tp1 hit",
+      "move_sl_to": "entry + 2 pip buffer"
+    }
+  },
+
+  "risk_management": {
+    "risk_per_trade_pct": "dynamic per signal_score — see signal_scoring.risk_scaling",
+    "lot_size_formula": "(account_balance * dynamic_risk_pct) / (sl_pips * pip_value_per_lot)",
+    "lot_size_min": "instrument.min_volume",
+    "lot_size_max": "instrument.max_volume",
+    "max_per_symbol_trades": 1,
+    "max_total_open_trades": 2,
+    "max_portfolio_heat_pct": 3.0,
+    "max_daily_loss_pct": 0.03,
+    "max_weekly_loss_pct": 0.06,
+    "action_on_daily_limit": "stop trading that symbol for the day",
+    "action_on_weekly_limit": "stop all trading for the week"
+  },
+
+  "auto_execution": {
+    "enabled": true,
+    "mode": "live",
+    "loop": "for each enabled instrument in instruments[]:",
+    "on_signal": [
+      "fetch M5 bars via mt5.copy_rates_range(symbol, TIMEFRAME_M5)",
+      "fetch M15 bars via mt5.copy_rates_range(symbol, TIMEFRAME_M15)",
+      "fetch H1 bars via mt5.copy_rates_range(symbol, TIMEFRAME_H1)",
+      "fetch H4 bars via mt5.copy_rates_range(symbol, TIMEFRAME_H4)",
+      "compute VWAP + adaptive bands on M5",
+      "compute volume delta on M5",
+      "compute ADX/RSI on M5",
+      "compute M15 confirmation bias",
+      "compute H1 EMA50 bias",
+      "compute H4 EMA200 macro bias",
+      "compute signal_score",
+      "check all entry_conditions",
+      "if all pass: calculate lot size using instrument.pip_value_per_lot",
+      "send order via mt5.order_send() with instrument.magic_number",
+      "log to SQLite with symbol field"
+    ],
+    "on_tp1_hit": ["close 40%", "SL to BE+2", "update log"],
+    "on_tp2_hit": ["close 40%", "trail runner", "update log"],
+    "on_tp3_or_trail_hit": ["close 20%", "log", "state → WAITING"],
+    "on_sl_hit": ["log loss", "increment loss counter for symbol", "state → WAITING"],
+    "on_time_stop": ["close at market", "log exit_reason=time_stop", "state → WAITING"]
+  },
+
+  "backtest": {
+    "instruments": "all enabled instruments in instruments[]",
+    "timeframes": "all in timeframe_config.backtest_all — M5, M15, M30",
+    "start_date": "2022-01-01",
+    "end_date":   "2024-12-31",
+    "data_source": "mt5.copy_rates_range(symbol, timeframe, start, end)",
+    "tick_source":  "mt5.copy_ticks_range(symbol, start, end) for delta",
+    "initial_balance": 10000,
+    "currency": "USD",
+    "costs": "per instrument — see instruments[].backtest_costs",
+    "validation": {
+      "in_sample":     { "start": "2022-01-01", "end": "2023-12-31" },
+      "out_of_sample": { "start": "2024-01-01", "end": "2024-12-31" },
+      "walk_forward":  { "window_months": 3, "step_months": 1 },
+      "ablation_tests": [
+        "run with/without M15 confirmation — measure improvement per symbol",
+        "run with/without H4 macro bias — measure improvement",
+        "run with/without ADX filter — measure improvement",
+        "run with/without correlation filter — measure portfolio impact",
+        "each filter must earn its place per instrument"
+      ]
+    },
+    "acceptance_criteria": {
+      "win_rate":              0.52,
+      "sharpe_ratio":          1.0,
+      "max_drawdown":          0.15,
+      "min_trades_per_symbol": 100,
+      "profit_factor":         1.3,
+      "expectancy_r":          0.3,
+      "oos_degradation_max":   0.20
+    }
+  },
+
+  "state_machine": {
+    "note": "One state machine instance per enabled instrument — run independently",
+    "states": ["WAITING", "ALERT", "SCORING", "EXECUTE", "IN_TRADE"],
+    "transitions": {
+      "WAITING":  { "trigger": "price reaches adaptive band AND ADX OK",       "next": "ALERT"    },
+      "ALERT":    { "trigger": "delta + M15 confirm",                          "next": "SCORING",
+                    "fallback": "price retreats",                              "fallback_next": "WAITING" },
+      "SCORING":  { "trigger": "score >= 60 AND kill zone AND spread OK AND portfolio heat OK", "next": "EXECUTE",
+                    "fallback": "any condition fails",                         "fallback_next": "WAITING" },
+      "EXECUTE":  { "trigger": "mt5.order_send() success",                     "next": "IN_TRADE" },
+      "IN_TRADE": {
+        "tp1_hit":          "close 40%, SL to BE, stay IN_TRADE",
+        "tp2_hit":          "close 40%, trail runner, stay IN_TRADE",
+        "tp3_or_trail_hit": "close 20%, go to WAITING",
+        "sl_hit":           "log loss, go to WAITING",
+        "time_stop":        "close at market, go to WAITING"
+      }
+    }
+  },
+
+  "logging": {
+    "enabled": true,
+    "storage": "SQLite",
+    "log_fields": [
+      "timestamp", "symbol", "timeframe_execution", "direction",
+      "signal_score", "score_components", "risk_pct_used",
+      "entry_price", "sl", "tp1", "tp2", "tp3",
+      "lot_size", "vwap_at_entry", "std_dev_at_entry", "adaptive_mult_used",
+      "delta_at_entry", "delta_strength", "adx_at_entry", "rsi_at_entry",
+      "m15_bias", "h1_bias", "h4_bias", "kill_zone", "spread_at_entry",
+      "exit_price", "exit_reason", "bars_in_trade",
+      "pnl_pips", "pnl_usd", "result", "portfolio_heat_at_entry"
+    ]
+  },
+
+  "performance_targets": {
+    "note": "Per instrument — only backtest reveals actual numbers",
+    "XAUUSD": { "win_rate": "55-60%", "avg_rr": "1:1.8-2.2", "trades_month": "8-15" },
+    "EURUSD": { "win_rate": "53-58%", "avg_rr": "1:1.5-2.0", "trades_month": "10-20" },
+    "GBPUSD": { "win_rate": "52-57%", "avg_rr": "1:1.6-2.0", "trades_month": "8-15" },
+    "USDJPY": { "win_rate": "53-58%", "avg_rr": "1:1.5-2.0", "trades_month": "10-18" },
+    "portfolio_max_drawdown": "< 12%",
+    "portfolio_monthly_return_r": "12-25R across all symbols"
+  },
+
+  "rollout_recommendation": {
+    "phase_1": "Backtest + validate XAUUSD M5 only — confirm edge exists",
+    "phase_2": "Paper trade XAUUSD live signals 2 weeks",
+    "phase_3": "Enable EURUSD — backtest + paper trade",
+    "phase_4": "Live trade XAUUSD + EURUSD together — monitor correlation",
+    "phase_5": "Add GBPUSD and USDJPY only after phase_4 stable 1 month",
+    "phase_6": "Enable US30/NAS100 only after forex instruments all validated",
+    "warning": "Do NOT enable all instruments at once — you cannot monitor what you cannot understand"
+  },
+
+  "tech_stack": {
+    "language":        "Python 3.10+",
+    "mt5_library":     "MetaTrader5 (pip install MetaTrader5)",
+    "computation":     "Pandas + NumPy + TA-Lib (ADX/RSI/ATR/EMA)",
+    "backtest_engine": "FastAPI + SQLite",
+    "frontend":        "Next.js",
+    "execution":       "mt5.order_send() — direct, no EA",
+    "os_requirement":  "Windows (MT5 terminal must be running)"
+  }
+}

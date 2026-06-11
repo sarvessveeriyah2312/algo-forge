@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, 
-  Cpu, 
-  FlaskConical, 
-  Play, 
-  BarChart3, 
+import {
+  LayoutDashboard,
+  FlaskConical,
+  Play,
+  BarChart3,
   Settings as SettingsIcon,
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  LogOut
+  LogOut,
+  Library,
 } from 'lucide-react';
 import { useAuthStore } from '../../store/useAuthStore';
 import { useToastStore } from '../../store/useToastStore';
@@ -26,12 +26,12 @@ export const Sidebar: React.FC = () => {
   };
 
   const menuItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard },
-    { name: 'Strategy Builder', path: '/builder', icon: Cpu },
+    { name: 'Dashboard',     path: '/',              icon: LayoutDashboard },
+    { name: 'Strategies',    path: '/strategies',    icon: Library },
     { name: 'Indicator Lab', path: '/indicator-lab', icon: FlaskConical },
-    { name: 'Backtest', path: '/backtest', icon: Play },
-    { name: 'Results', path: '/results', icon: BarChart3 },
-    { name: 'Settings', path: '/settings', icon: SettingsIcon },
+    { name: 'Backtest',      path: '/backtest',      icon: Play },
+    { name: 'Results',       path: '/results',       icon: BarChart3 },
+    { name: 'Settings',      path: '/settings',      icon: SettingsIcon },
   ];
 
   return (

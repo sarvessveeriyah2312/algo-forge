@@ -54,12 +54,14 @@ async def create_backtest_run(
     await db.commit()
     await db.refresh(run)
 
-    # Build strategy dict for the background task (avoid lazy-loading issues)
+    # Build strategy dict for the background task (avoid lazy-loading issues).
+    # Use instrument/timeframe from the request so trade records match the OHLCV
+    # data actually fetched, not the strategy's saved defaults.
     strategy_dict = {
         "id": str(strategy.id),
         "name": strategy.name,
-        "instrument": strategy.instrument,
-        "timeframe": strategy.timeframe,
+        "instrument": data.instrument,
+        "timeframe": data.timeframe,
         "direction": strategy.direction.value,
         "entry_conditions": strategy.entry_conditions or [],
         "exit_conditions": strategy.exit_conditions or [],
@@ -72,6 +74,7 @@ async def create_backtest_run(
         "spread": data.spread,
         "commission": data.commission,
         "slippage": data.slippage,
+        "time_stop_bars": data.time_stop_bars,
         "instrument": data.instrument,
         "timeframe": data.timeframe,
         "date_from": data.date_from,
@@ -156,13 +159,10 @@ async def delete_backtest_run(db: AsyncSession, run_id: uuid.UUID) -> bool:
 
 
 async def cancel_backtest_run(db: AsyncSession, run_id: uuid.UUID) -> BacktestRun:
-    """Cancel a PENDING or RUNNING backtest run."""
+    """Cancel a PENDING or RUNNING backtest run. No-ops if already in a terminal state."""
     run = await get_backtest_run(db, run_id)
     if run.status not in (BacktestStatusEnum.PENDING, BacktestStatusEnum.RUNNING):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"Cannot cancel a run with status '{run.status.value}'.",
-        )
+        return run
     run.status = BacktestStatusEnum.FAILED
     run.error_message = "Cancelled by user."
     run.completed_at = datetime.now(tz=timezone.utc)
@@ -237,6 +237,7 @@ async def _run_backtest_task(
                 spread=config["spread"],
                 commission=config["commission"],
                 slippage=config["slippage"],
+                time_stop_bars=config.get("time_stop_bars", 0),
                 risk_per_trade=strategy.get("risk_per_trade", 1.0),
                 max_daily_drawdown=strategy.get("max_daily_drawdown", 5.0),
             )
@@ -255,6 +256,7 @@ async def _run_backtest_task(
                     "SL": ExitReasonEnum.SL,
                     "SIGNAL": ExitReasonEnum.SIGNAL,
                     "EOD": ExitReasonEnum.EOD,
+                    "TIME": ExitReasonEnum.TIME,
                 }
                 exit_enum = exit_map.get(tr.exit_reason, ExitReasonEnum.SIGNAL)
 
@@ -294,11 +296,15 @@ async def _run_backtest_task(
             run.completed_at = datetime.now(tz=timezone.utc)
             run.net_profit = bt_result.net_profit
             run.total_trades = bt_result.total_trades
+            run.winning_trades = bt_result.winning_trades
+            run.losing_trades = bt_result.losing_trades
             run.win_rate = bt_result.win_rate
             run.profit_factor = bt_result.profit_factor
             run.max_drawdown = bt_result.max_drawdown
+            run.max_drawdown_pct = bt_result.max_drawdown_pct
             run.sharpe_ratio = bt_result.sharpe_ratio
             run.expectancy = bt_result.expectancy
+            run.avg_trade_duration = bt_result.avg_trade_duration
             run.equity_curve = bt_result.equity_curve
             run.log_output = "\n".join(bt_result.log_lines)
             run.error_message = None

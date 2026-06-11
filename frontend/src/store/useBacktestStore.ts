@@ -35,12 +35,14 @@ interface BacktestState {
   equityCurve: Record<string, { date: string; equity: number }[]>;
   activeResultId: string;
   activeRunId: string | null;
+  _localTimer: ReturnType<typeof setInterval> | null;
 
   setConfig: (config: BacktestConfig) => void;
   setActiveResultId: (id: string) => void;
   clearLogs: () => void;
   addLog: (msg: string, type?: BacktestLog['type']) => void;
   runBacktest: (strategyId: string, strategyName: string, pair: string, riskValue: number) => void;
+  stopBacktest: () => void;
   fetchRunResult: (runId: string, strategyId: string) => Promise<void>;
 }
 
@@ -56,22 +58,38 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
   config: {
     strategyId: 'strat-1',
     instruments: ['XAUUSD'],
+    timeframe: 'H1',
     dateFrom: '2026-05-01',
     dateTo: '2026-06-08',
     initialCapital: 10000,
     spread: 10,
     commission: 5.00,
     slippage: 1,
+    timeStopBars: 0,
   },
   metrics: DEFAULT_METRICS,
   trades: DEFAULT_TRADES,
   equityCurve: {},
   activeResultId: 'strat-1',
   activeRunId: null,
+  _localTimer: null,
 
   setConfig: (config) => set({ config }),
   setActiveResultId: (id) => set({ activeResultId: id }),
   clearLogs: () => set({ logs: [] }),
+
+  stopBacktest: () => {
+    const { activeRunId, _localTimer, addLog } = get();
+    if (_localTimer) {
+      clearInterval(_localTimer);
+      set({ _localTimer: null });
+    }
+    if (activeRunId) {
+      api.post(`/backtest/${activeRunId}/cancel`, {}).catch(() => {});
+    }
+    addLog('[STOP] Backtest stopped by user.', 'warning');
+    set({ status: 'failed', progress: 0 });
+  },
 
   addLog: (msg, type = 'info') => set(state => {
     const ts = new Date().toLocaleTimeString('en-US', { hour12: false });
@@ -81,27 +99,23 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
   }),
 
   fetchRunResult: async (runId, strategyId) => {
-    try {
-      const [runData, tradesData, curveData] = await Promise.all([
-        api.get<any>(`/backtest/${runId}`),
-        api.get<{ items: any[] }>(`/backtest/${runId}/trades?page_size=500`),
-        api.get<{ date: string; equity: number }[]>(`/backtest/${runId}/equity-curve`).catch(() => []),
-      ]);
+    const [runData, tradesData, curveData] = await Promise.all([
+      api.get<any>(`/backtest/${runId}`),
+      api.get<{ items: any[] }>(`/backtest/${runId}/trades?page_size=500`),
+      api.get<{ date: string; equity: number }[]>(`/backtest/${runId}/equity-curve`).catch(() => []),
+    ]);
 
-      const metrics = metricsFromBackend({ ...runData, initial_capital: get().config.initialCapital });
-      const trades = (tradesData.items || []).map(tradeFromBackend);
+    const metrics = metricsFromBackend(runData);
+    const trades = (tradesData.items || []).map(tradeFromBackend);
 
-      set(state => ({
-        metrics: { ...state.metrics, [strategyId]: metrics },
-        trades: { ...state.trades, [strategyId]: trades },
-        equityCurve: { ...state.equityCurve, [strategyId]: curveData || [] },
-        activeResultId: strategyId,
-        status: 'completed',
-        progress: 100,
-      }));
-    } catch {
-      set({ status: 'failed' });
-    }
+    set(state => ({
+      metrics: { ...state.metrics, [strategyId]: metrics },
+      trades: { ...state.trades, [strategyId]: trades },
+      equityCurve: { ...state.equityCurve, [strategyId]: curveData || [] },
+      activeResultId: strategyId,
+      status: 'completed',
+      progress: 100,
+    }));
   },
 
   runBacktest: (strategyId, strategyName, pair, riskValue) => {
@@ -112,7 +126,7 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
     set({
       logs: [
         { id: '1', timestamp: ts, message: `[ENGINE] Starting backtest for: "${strategyName}"`, type: 'info' },
-        { id: '2', timestamp: ts, message: `[CONFIG] Instrument: ${pair} | ${config.dateFrom} → ${config.dateTo}`, type: 'info' },
+        { id: '2', timestamp: ts, message: `[CONFIG] Instrument: ${pair} | TF: ${config.timeframe} | ${config.dateFrom} → ${config.dateTo}`, type: 'info' },
       ],
     });
 
@@ -127,13 +141,14 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
     const payload = {
       strategy_id: strategyId,
       instrument: pair,
-      timeframe: 'H1',
+      timeframe: config.timeframe,
       date_from: config.dateFrom,
       date_to: config.dateTo,
       initial_capital: config.initialCapital,
       spread: config.spread,
       commission: config.commission,
       slippage: config.slippage,
+      time_stop_bars: config.timeStopBars,
     };
 
     api.post<{ id: string }>('/backtest/run', payload)
@@ -149,12 +164,23 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
           ws.onmessage = (event) => {
             try {
               const msg = JSON.parse(event.data);
-              if (msg.type === 'log') {
-                addLog(msg.message, 'info');
-                set(state => ({ progress: Math.min(90, state.progress + 2) }));
+              if (msg.type === 'progress') {
+                // Heartbeat while engine is running — advance bar silently
+                set(state => ({ progress: Math.min(75, state.progress + 3) }));
+              } else if (msg.type === 'log') {
+                const m: string = msg.message || '';
+                const logType =
+                  m.includes('[CLOSE') || m.includes('RESULT') || m.includes('COMPLETE') ? 'success' :
+                  m.includes('[ERROR') || m.includes('FAILED') || m.includes('[RISK') ? 'error' :
+                  m.includes('WARNING') || m.includes('WARN') ? 'warning' : 'info';
+                addLog(m, logType);
+                set(state => ({ progress: Math.min(95, state.progress + 1) }));
               } else if (msg.type === 'complete') {
                 ws?.close();
-                fetchRunResult(runId, strategyId);
+                fetchRunResult(runId, strategyId).catch(() => {
+                  addLog('[ERROR] Failed to load run results from server.', 'error');
+                  set({ status: 'failed' });
+                });
               }
             } catch {}
           };
@@ -167,13 +193,13 @@ export const useBacktestStore = create<BacktestState>((set, get) => ({
           pollUntilComplete(runId, strategyId, fetchRunResult, addLog, set);
         }
 
-        // Safety fallback: poll if WS never fires complete
+        // Safety fallback: poll if WS connection drops without firing complete
         setTimeout(() => {
           if (get().status === 'running') {
             ws?.close();
             pollUntilComplete(runId, strategyId, fetchRunResult, addLog, set);
           }
-        }, 120_000);
+        }, 300_000);
       })
       .catch((err: ApiError | Error) => {
         addLog(`[ERROR] ${err.message}`, 'error');
@@ -204,7 +230,10 @@ function pollUntilComplete(
       set((state: any) => ({ progress: Math.min(90, state.progress + 5) }));
 
       if (data.status === 'COMPLETED') {
-        await fetchRunResult(runId, strategyId);
+        await fetchRunResult(runId, strategyId).catch(() => {
+          addLog('[ERROR] Failed to load run results from server.', 'error');
+          set({ status: 'failed' });
+        });
       } else if (data.status === 'FAILED') {
         addLog('[ERROR] Backtest run failed on server', 'error');
         set({ status: 'failed' });
@@ -239,12 +268,14 @@ function runLocalSimulation({ strategyId, strategyName, pair, riskValue, config,
   ];
 
   const timer = setInterval(() => {
+    if (get().status !== 'running') { clearInterval(timer); return; }
     if (step < steps.length) {
       addLog(steps[step].msg, steps[step].type);
       set({ progress: Math.min(95, Math.round(((step + 1) / steps.length) * 100)) });
       step++;
     } else {
       clearInterval(timer);
+      set({ _localTimer: null });
       const winRate = parseFloat((50 + Math.random() * 20).toFixed(1));
       const totalTrades = Math.floor(Math.random() * 80) + 40;
       const netPct = parseFloat((5 + Math.random() * 25).toFixed(1));
@@ -292,4 +323,5 @@ function runLocalSimulation({ strategyId, strategyName, pair, riskValue, config,
       addLog('Backtest complete. Results available on the Results page.', 'success');
     }
   }, 600);
+  set({ _localTimer: timer });
 }

@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.deps import get_db, verify_api_key
 from app.models.indicator import IndicatorCategoryEnum
-from app.schemas.indicator import IndicatorCreate, IndicatorList, IndicatorResponse
+from app.schemas.indicator import IndicatorCreate, IndicatorList, IndicatorPublicResponse, IndicatorResponse
 from app.services import indicator_service
 
 router = APIRouter(
@@ -18,17 +18,20 @@ router = APIRouter(
 )
 
 
+@router.get("/all", response_model=list[IndicatorPublicResponse])
+async def list_all_indicators(
+    db: AsyncSession = Depends(get_db),
+) -> list[IndicatorPublicResponse]:
+    """Return every indicator in sort order — used by the strategy builder UI."""
+    return await indicator_service.get_all_indicators(db)
+
+
 @router.get("/categories")
 async def get_categories(
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
-    """Return indicator categories with counts.
-
-    NOTE: This route MUST be declared before /{indicator_id} to avoid UUID
-    parsing errors when the literal string 'categories' is passed.
-    """
-    categories = await indicator_service.get_categories(db)
-    return categories
+    """Return indicator categories with counts."""
+    return await indicator_service.get_categories(db)
 
 
 @router.get("/", response_model=IndicatorList)
@@ -51,8 +54,7 @@ async def get_indicator(
     db: AsyncSession = Depends(get_db),
 ) -> IndicatorResponse:
     """Get an indicator by ID."""
-    indicator = await indicator_service.get_indicator(db, indicator_id)
-    return indicator
+    return await indicator_service.get_indicator(db, indicator_id)
 
 
 @router.post("/", response_model=IndicatorResponse, status_code=status.HTTP_201_CREATED)
@@ -61,5 +63,4 @@ async def create_indicator(
     db: AsyncSession = Depends(get_db),
 ) -> IndicatorResponse:
     """Create a new indicator definition."""
-    indicator = await indicator_service.create_indicator(db, data)
-    return indicator
+    return await indicator_service.create_indicator(db, data)

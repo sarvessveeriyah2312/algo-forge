@@ -1,5 +1,6 @@
 const BASE_URL = (import.meta.env.VITE_API_URL as string) || 'http://localhost:8000';
 const API_V1 = `${BASE_URL}/api/v1`;
+const API_KEY = (import.meta.env.VITE_API_KEY as string) || '';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -35,7 +36,7 @@ class ApiClient {
     try {
       const res = await fetch(`${API_V1}/auth/refresh`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...(API_KEY ? { 'X-API-Key': API_KEY } : {}) },
         body: JSON.stringify({ refresh_token: refreshToken }),
       });
       if (!res.ok) { this.clearTokens(); return false; }
@@ -54,6 +55,7 @@ class ApiClient {
       ...(options.headers as Record<string, string> || {}),
     };
     if (token) headers['Authorization'] = `Bearer ${token}`;
+    if (API_KEY) headers['X-API-Key'] = API_KEY;
 
     let res = await fetch(`${API_V1}${path}`, { ...options, headers });
 

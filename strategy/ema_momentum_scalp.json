@@ -1,0 +1,36 @@
+{
+  "name": "EMA Momentum Scalp",
+  "instrument": "XAUUSD",
+  "timeframe": "M5",
+  "description": "Fast M5 scalp on XAUUSD. A bullish bar (close >= open) triggers a LONG entry; a bearish bar triggers a SHORT entry — but only when EMA-9 is active and RSI-14 is not at an extreme. Exits via ATR-based stop-loss (1.5x ATR) and take-profit (3x ATR), giving a built-in 1:2 R:R on every trade.",
+  "direction": "BOTH",
+  "session_filter": ["london", "newYork"],
+  "risk_per_trade": 0.5,
+  "max_daily_drawdown": 2.0,
+  "entry_conditions": [
+    {
+      "indicator": "EMA",
+      "params": { "period": 9 },
+      "operator": "GREATER_THAN",
+      "value": 0,
+      "logic": "AND"
+    },
+    {
+      "indicator": "RSI",
+      "params": { "period": 14 },
+      "operator": "LESS_THAN",
+      "value": 68,
+      "logic": "AND"
+    },
+    {
+      "indicator": "RSI",
+      "params": { "period": 14 },
+      "operator": "GREATER_THAN",
+      "value": 32,
+      "logic": "AND"
+    }
+  ],
+  "exit_conditions": [],
+  "filters": {},
+  "is_active": true
+}

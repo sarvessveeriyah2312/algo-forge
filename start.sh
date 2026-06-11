@@ -98,12 +98,19 @@ else
   success "Virtual environment found"
 fi
 
-PYTHON="$VENV_DIR/bin/python"
-PIP="$VENV_DIR/bin/pip"
+# On Windows (msys/Git Bash), venv uses Scripts/ instead of bin/
+if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
+  VENV_BIN="$VENV_DIR/Scripts"
+else
+  VENV_BIN="$VENV_DIR/bin"
+fi
+
+PYTHON="$VENV_BIN/python"
+PIP="$VENV_BIN/pip"
 
 # Install / sync dependencies
 info "Installing Python dependencies..."
-"$PIP" install --quiet --upgrade pip
+"$PYTHON" -m pip install --quiet --upgrade pip
 
 # Use windows requirements (includes MetaTrader5) on Windows, base on Mac/Linux
 if [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" || "$OSTYPE" == "win32" ]]; then
@@ -123,7 +130,7 @@ if [[ "$RUN_MIGRATE" == true ]]; then
   (
     cd "$BACKEND_DIR"
     # Attempt migration — skip gracefully if DB is not reachable
-    if "$VENV_DIR/bin/alembic" upgrade head 2>&1; then
+    if "$VENV_BIN/alembic" upgrade head 2>&1; then
       :
     else
       warn "Alembic migration failed — DB may not be running yet. Skipping. (Use --no-migrate to suppress)"
@@ -165,7 +172,7 @@ info "Starting backend on http://localhost:8000 ..."
 (
   cd "$BACKEND_DIR"
   export PYTHONUNBUFFERED=1
-  "$VENV_DIR/bin/uvicorn" main:app \
+  "$VENV_BIN/uvicorn" main:app \
     --host 0.0.0.0 \
     --port 8000 \
     --reload \

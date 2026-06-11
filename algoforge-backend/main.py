@@ -18,13 +18,18 @@ import logging.config
 from datetime import datetime
 from typing import Any
 
+import uuid as _uuid
+
 from fastapi import FastAPI, Request, Response, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from sqlalchemy import select
+
 from app.api.v1.router import api_router
 from app.core.config import settings
-from app.core.database import init_db
+from app.core.database import AsyncSessionLocal, init_db
+from app.models.backtest import BacktestRun, BacktestStatusEnum
 from app.services.mt5_service import MT5ConnectionError, mt5_service
 
 # ──────────────────────────────────────────────
@@ -87,7 +92,7 @@ async def api_key_middleware(request: Request, call_next) -> Response:
     """Check X-API-Key header for all non-public routes."""
     path = request.url.path
     # Allow public paths and websocket handshakes
-    if path in _PUBLIC_PATHS or path.startswith("/ws/"):
+    if path in _PUBLIC_PATHS or path.startswith("/ws/") or request.method == "OPTIONS":
         return await call_next(request)
 
     api_key = request.headers.get("X-API-Key", "")
@@ -171,21 +176,61 @@ manager = ConnectionManager()
 
 @app.websocket("/ws/backtest/{run_id}")
 async def websocket_backtest(websocket: WebSocket, run_id: str) -> None:
-    """WebSocket endpoint for real-time backtest log streaming."""
+    """
+    Stream backtest progress and log output to the client.
+
+    Behaviour:
+    - While PENDING / RUNNING: sends a "progress" heartbeat every 2 s so the
+      frontend progress bar advances even before logs are available.
+    - On COMPLETED: streams all engine log lines with a 25 ms gap (live-terminal
+      effect), then sends {"type": "complete"} so the frontend fetches results.
+    - On FAILED: sends the error message then {"type": "complete"}.
+    """
     await manager.connect(run_id, websocket)
     try:
-        # Send initial connect acknowledgement
-        await websocket.send_json({
-            "type": "connected",
-            "run_id": run_id,
-            "message": f"Connected to backtest stream for run {run_id}",
-        })
-        # Keep connection alive — clients can send pings
+        try:
+            run_uuid = _uuid.UUID(run_id)
+        except ValueError:
+            await websocket.send_json({"type": "error", "message": "Invalid run ID"})
+            return
+
         while True:
-            data = await websocket.receive_text()
-            if data == "ping":
-                await websocket.send_json({"type": "pong"})
-    except WebSocketDisconnect:
+            # Open a fresh session each iteration so we never read a stale cache.
+            async with AsyncSessionLocal() as db:
+                result = await db.execute(
+                    select(BacktestRun).where(BacktestRun.id == run_uuid)
+                )
+                run = result.scalar_one_or_none()
+
+            if run is None:
+                await websocket.send_json({"type": "error", "message": "Run not found"})
+                break
+
+            if run.status in (BacktestStatusEnum.PENDING, BacktestStatusEnum.RUNNING):
+                await websocket.send_json({
+                    "type": "progress",
+                    "status": run.status.value,
+                })
+                await asyncio.sleep(2)
+
+            elif run.status == BacktestStatusEnum.COMPLETED:
+                if run.log_output:
+                    lines = [l for l in run.log_output.split("\n") if l.strip()]
+                    for line in lines:
+                        await websocket.send_json({"type": "log", "message": line})
+                        await asyncio.sleep(0.025)
+                await websocket.send_json({"type": "complete"})
+                break
+
+            else:  # FAILED
+                error = run.error_message or "Backtest failed (no details recorded)"
+                await websocket.send_json({"type": "log", "message": f"[FAILED] {error}"})
+                await websocket.send_json({"type": "complete"})
+                break
+
+    except (WebSocketDisconnect, Exception):
+        pass
+    finally:
         manager.disconnect(run_id, websocket)
 
 

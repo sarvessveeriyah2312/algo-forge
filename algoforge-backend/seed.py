@@ -10,110 +10,10 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import uuid
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 logger = logging.getLogger(__name__)
-
-
-# ──────────────────────────────────────────────
-# Seed data definitions
-# ──────────────────────────────────────────────
-
-INDICATORS_SEED = [
-    {
-        "name": "EMA",
-        "category": "TREND",
-        "parameters": {"period": 20},
-        "description": "Exponential Moving Average — weights recent prices more heavily.",
-    },
-    {
-        "name": "SMA",
-        "category": "TREND",
-        "parameters": {"period": 50},
-        "description": "Simple Moving Average — equal-weight average of closing prices.",
-    },
-    {
-        "name": "VWAP",
-        "category": "TREND",
-        "parameters": {},
-        "description": "Volume Weighted Average Price — intraday fair value reference.",
-    },
-    {
-        "name": "Supertrend",
-        "category": "TREND",
-        "parameters": {"period": 10, "multiplier": 3.0},
-        "description": "Supertrend — trend direction indicator based on ATR bands.",
-    },
-    {
-        "name": "RSI",
-        "category": "MOMENTUM",
-        "parameters": {"period": 14},
-        "description": "Relative Strength Index — momentum oscillator (0–100).",
-    },
-    {
-        "name": "MACD",
-        "category": "MOMENTUM",
-        "parameters": {"fast": 12, "slow": 26, "signal": 9},
-        "description": "Moving Average Convergence/Divergence — trend-following momentum indicator.",
-    },
-    {
-        "name": "Stochastic",
-        "category": "MOMENTUM",
-        "parameters": {"k_period": 14, "d_period": 3},
-        "description": "Stochastic Oscillator — compares closing price to high-low range.",
-    },
-    {
-        "name": "CCI",
-        "category": "MOMENTUM",
-        "parameters": {"period": 20},
-        "description": "Commodity Channel Index — measures deviation from average price.",
-    },
-    {
-        "name": "Williams %R",
-        "category": "MOMENTUM",
-        "parameters": {"period": 14},
-        "description": "Williams %R — momentum indicator similar to stochastic (%R scale).",
-    },
-    {
-        "name": "ATR",
-        "category": "VOLATILITY",
-        "parameters": {"period": 14},
-        "description": "Average True Range — measures market volatility.",
-    },
-    {
-        "name": "Bollinger Bands",
-        "category": "VOLATILITY",
-        "parameters": {"period": 20, "std_dev": 2.0},
-        "description": "Bollinger Bands — volatility bands around a moving average.",
-    },
-    {
-        "name": "Keltner Channel",
-        "category": "VOLATILITY",
-        "parameters": {"period": 20, "multiplier": 2.0},
-        "description": "Keltner Channel — ATR-based volatility bands around EMA.",
-    },
-    {
-        "name": "OBV",
-        "category": "VOLUME",
-        "parameters": {},
-        "description": "On-Balance Volume — cumulative volume flow indicator.",
-    },
-    {
-        "name": "CMF",
-        "category": "VOLUME",
-        "parameters": {"period": 20},
-        "description": "Chaikin Money Flow — measures buying/selling pressure using volume.",
-    },
-    {
-        "name": "FVG Detector",
-        "category": "ICT",
-        "parameters": {"min_gap_pips": 1.0},
-        "description": "Fair Value Gap detector — identifies imbalance zones in price action.",
-    },
-]
 
 STRATEGIES_SEED = [
     {
@@ -241,36 +141,12 @@ async def seed_database(db: AsyncSession) -> None:
     Seed the database with default indicators and strategies.
     Only inserts if the tables are empty.
     """
-    from app.models.indicator import Indicator, IndicatorCategoryEnum
     from app.models.strategy import Strategy, DirectionEnum
 
-    # ── Indicators ──
-    ind_count_result = await db.execute(
-        select(Indicator).limit(1)
-    )
-    existing_indicator = ind_count_result.scalar_one_or_none()
-
-    if existing_indicator is None:
-        logger.info("Seeding indicators...")
-        indicators_to_add = []
-        for data in INDICATORS_SEED:
-            ind_obj = Indicator(
-                id=uuid.uuid4(),
-                name=data["name"],
-                category=IndicatorCategoryEnum(data["category"]),
-                parameters=data["parameters"],
-                description=data.get("description"),
-            )
-            indicators_to_add.append(ind_obj)
-        try:
-            async with db.begin():
-                for ind_obj in indicators_to_add:
-                    db.add(ind_obj)
-            logger.info("Seeded %d indicators.", len(INDICATORS_SEED))
-        except Exception as exc:
-            logger.warning("Indicator seed failed (may already exist): %s", exc)
-    else:
-        logger.info("Indicators table already has data — skipping indicator seed.")
+    # ── Indicators ── (handled by indicator_service.seed_indicators via init_db)
+    from app.services.indicator_service import seed_indicators
+    await seed_indicators(db)
+    logger.info("Indicator seed delegated to indicator_service.")
 
     # ── Strategies ──
     strat_count_result = await db.execute(

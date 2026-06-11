@@ -32,12 +32,17 @@ AsyncSessionLocal = async_sessionmaker(
 
 
 async def init_db() -> None:
-    """Create all tables defined in metadata."""
+    """Create all tables defined in metadata, then seed reference data."""
     # Import all models so they are registered on Base.metadata
     from app.models import strategy, indicator, backtest, trade  # noqa: F401
 
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # Seed indicators if table is empty
+    from app.services.indicator_service import seed_indicators
+    async with AsyncSessionLocal() as db:
+        await seed_indicators(db)
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

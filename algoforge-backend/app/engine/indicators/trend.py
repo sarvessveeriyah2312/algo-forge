@@ -36,6 +36,43 @@ def vwap(df: pd.DataFrame) -> pd.Series:
     return result.rename("vwap")
 
 
+def vwap_bands(df: pd.DataFrame, multiplier: float = 1.5) -> pd.DataFrame:
+    """
+    Daily VWAP with upper and lower standard deviation bands.
+
+    Returns DataFrame with columns: vwap, upper, lower.
+    Upper/lower bands = vwap ± multiplier * volume-weighted std dev.
+    """
+    df = df.copy()
+
+    if not isinstance(df.index, pd.DatetimeIndex):
+        if "time" in df.columns:
+            df.index = pd.to_datetime(df["time"])
+        else:
+            raise ValueError("DataFrame must have a DatetimeIndex or a 'time' column")
+
+    df["_date"] = df.index.date
+    df["_tp"] = (df["high"] + df["low"] + df["close"]) / 3
+    df["_cum_tp_vol"] = df.groupby("_date")["_tp"].transform(
+        lambda x: (x * df.loc[x.index, "volume"]).cumsum()
+    )
+    df["_cum_vol"] = df.groupby("_date")["volume"].transform("cumsum")
+    vwap_line = df["_cum_tp_vol"] / df["_cum_vol"].replace(0, np.nan)
+
+    df["_vwap"] = vwap_line
+    df["_sq_dev"] = (df["_tp"] - df["_vwap"]) ** 2
+    df["_cum_sq_vol"] = df.groupby("_date")["_sq_dev"].transform(
+        lambda x: (x * df.loc[x.index, "volume"]).cumsum()
+    )
+    variance = df["_cum_sq_vol"] / df["_cum_vol"].replace(0, np.nan)
+    std_dev = variance.apply(lambda v: v ** 0.5 if pd.notna(v) and v >= 0 else 0.0)
+
+    upper = vwap_line + multiplier * std_dev
+    lower = vwap_line - multiplier * std_dev
+
+    return pd.DataFrame({"vwap": vwap_line, "upper": upper, "lower": lower})
+
+
 def anchored_vwap(df: pd.DataFrame, anchor_index: int) -> pd.Series:
     """
     Anchored VWAP from a specific bar index forward.

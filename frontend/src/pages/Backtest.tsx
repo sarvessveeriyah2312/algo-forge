@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Play, 
-  Terminal, 
-  Settings2, 
-  Trash2, 
-  Compass, 
-  TrendingUp, 
+import {
+  Play,
+  Square,
+  Terminal,
+  Settings2,
+  Trash2,
+  Compass,
+  TrendingUp,
   Calendar,
   AlertOctagon,
   Cpu,
@@ -22,19 +23,48 @@ import { BacktestConfig } from '../types/backtest';
 export const Backtest: React.FC = () => {
   const navigate = useNavigate();
   const { strategies } = useStrategyStore();
-  const { 
-    logs, 
-    status, 
-    progress, 
-    config, 
-    setConfig, 
-    runBacktest, 
-    clearLogs 
+  const {
+    logs,
+    status,
+    progress,
+    config,
+    setConfig,
+    runBacktest,
+    stopBacktest,
+    clearLogs,
+    activeRunId,
   } = useBacktestStore();
   const { addToast } = useToastStore();
 
   const [selectedStratId, setSelectedStratId] = useState<string>(strategies[0]?.id || 'strat-1');
   const [selectedPairs, setSelectedPairs] = useState<string[]>(['XAUUSD']);
+  const terminalRef = useRef<HTMLDivElement>(null);
+
+  // Per-instrument cost defaults
+  const INSTRUMENT_DEFAULTS: Record<string, { spread: number; commission: number; slippage: number }> = {
+    XAUUSD: { spread: 25, commission: 5.00, slippage: 2 },
+    EURUSD: { spread: 5,  commission: 3.50, slippage: 1 },
+    GBPUSD: { spread: 8,  commission: 3.50, slippage: 1 },
+    USDJPY: { spread: 6,  commission: 3.50, slippage: 1 },
+    USDCHF: { spread: 8,  commission: 3.50, slippage: 1 },
+    AUDUSD: { spread: 7,  commission: 3.50, slippage: 1 },
+    DXY:    { spread: 3,  commission: 2.50, slippage: 1 },
+  };
+
+  useEffect(() => {
+    const primary = selectedPairs[0];
+    const defaults = INSTRUMENT_DEFAULTS[primary];
+    if (defaults) {
+      setConfig({ ...config, ...defaults });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedPairs]);
+
+  useEffect(() => {
+    if (terminalRef.current) {
+      terminalRef.current.scrollTop = terminalRef.current.scrollHeight;
+    }
+  }, [logs]);
 
   // Handle pair checkbox toggling
   const handlePairToggle = (pair: string) => {
@@ -121,8 +151,8 @@ export const Backtest: React.FC = () => {
             {/* Multiselect checkboxes for instruments */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-mono text-gray-400 uppercase tracking-wide block">Instruments (Multi-Select Confluences)</label>
-              <div className="grid grid-cols-3 gap-2 text-xs font-mono">
-                {['XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD'].map((pair) => (
+              <div className="grid grid-cols-4 gap-2 text-xs font-mono">
+                {['XAUUSD', 'EURUSD', 'GBPUSD', 'USDJPY', 'USDCHF', 'AUDUSD', 'DXY'].map((pair) => (
                   <button
                     key={pair}
                     type="button"
@@ -135,6 +165,28 @@ export const Backtest: React.FC = () => {
                     }`}
                   >
                     {pair}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Timeframe selector */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-mono text-gray-400 uppercase tracking-wide block">Timeframe</label>
+              <div className="grid grid-cols-4 gap-2 text-xs font-mono">
+                {['M1', 'M5', 'M15', 'M30', 'H1', 'H4', 'D1', 'W1'].map((tf) => (
+                  <button
+                    key={tf}
+                    type="button"
+                    disabled={status === 'running'}
+                    onClick={() => setConfig({ ...config, timeframe: tf })}
+                    className={`p-2 rounded text-center border text-[11px] font-mono font-bold transition-all cursor-pointer ${
+                      config.timeframe === tf
+                        ? 'bg-[#00d4aa]/10 text-[#00d4aa] border-[#00d4aa]/40'
+                        : 'bg-[#1f2937]/30 text-gray-400 border-[#1f2937] hover:border-[#374151]'
+                    }`}
+                  >
+                    {tf}
                   </button>
                 ))}
               </div>
@@ -188,7 +240,7 @@ export const Backtest: React.FC = () => {
             </div>
 
             {/* Tick feeds and charges */}
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-4 gap-2.5">
               <div className="space-y-1.5">
                 <label className="text-[10px] font-mono text-gray-500 uppercase">Spread (pts)</label>
                 <input
@@ -221,28 +273,50 @@ export const Backtest: React.FC = () => {
                   className="w-full bg-[#1f2937] border border-[#374151] rounded px-2.5 py-1.5 text-xs font-mono text-gray-100 focus:outline-none disabled:opacity-50"
                 />
               </div>
+
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-mono text-gray-500 uppercase">T-Stop (bars)</label>
+                <input
+                  type="number"
+                  disabled={status === 'running'}
+                  value={config.timeStopBars}
+                  min={0}
+                  onChange={(e) => setConfig({ ...config, timeStopBars: parseInt(e.target.value) || 0 })}
+                  className="w-full bg-[#1f2937] border border-[#374151] rounded px-2.5 py-1.5 text-xs font-mono text-gray-100 focus:outline-none disabled:opacity-50"
+                  placeholder="0"
+                />
+              </div>
             </div>
 
           </div>
 
-          <div className="pt-6 border-t border-[#1f2937] mt-6">
-            <button
-              onClick={handleRunSimulation}
-              disabled={status === 'running'}
-              className="w-full py-3 bg-[#00d4aa] disabled:bg-gray-700 text-black hover:bg-opacity-95 rounded text-xs font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center space-x-2"
-            >
-              {status === 'running' ? (
-                <>
-                  <span className="w-4 h-4 border-2 border-t-transparent border-black rounded-full animate-spin"></span>
+          <div className="pt-6 border-t border-[#1f2937] mt-6 flex gap-2">
+            {status === 'running' ? (
+              <>
+                <button
+                  disabled
+                  className="flex-1 py-3 bg-gray-700 text-gray-400 rounded text-xs font-mono font-bold uppercase tracking-widest flex items-center justify-center space-x-2 cursor-not-allowed"
+                >
+                  <span className="w-4 h-4 border-2 border-t-transparent border-gray-400 rounded-full animate-spin"></span>
                   <span>Compiling Ticks {progress}%</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4 fill-black" />
-                  <span>Execute Backtest Engine</span>
-                </>
-              )}
-            </button>
+                </button>
+                <button
+                  onClick={stopBacktest}
+                  className="py-3 px-5 bg-red-600 hover:bg-red-500 text-white rounded text-xs font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center space-x-2"
+                >
+                  <Square className="w-3.5 h-3.5 fill-white" />
+                  <span>Stop</span>
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={handleRunSimulation}
+                className="flex-1 py-3 bg-[#00d4aa] text-black hover:bg-opacity-95 rounded text-xs font-mono font-bold uppercase tracking-widest transition-all cursor-pointer flex items-center justify-center space-x-2"
+              >
+                <Play className="w-4 h-4 fill-black" />
+                <span>Execute Backtest Engine</span>
+              </button>
+            )}
           </div>
 
         </div>
@@ -267,7 +341,7 @@ export const Backtest: React.FC = () => {
           </div>
 
           {/* Terminal Console Output area */}
-          <div className="flex-1 bg-[#05080f] p-5 font-mono text-[11px] leading-relaxed overflow-y-auto space-y-2 select-all relative scrollbar-none">
+          <div ref={terminalRef} className="flex-1 bg-[#05080f] p-5 font-mono text-[11px] leading-relaxed overflow-y-auto space-y-2 select-all relative scrollbar-none">
             {logs.map((log) => (
               <div 
                 key={log.id} 
@@ -317,7 +391,7 @@ export const Backtest: React.FC = () => {
               </div>
 
               <button
-                onClick={() => navigate('/results')}
+                onClick={() => navigate(activeRunId ? `/results/${activeRunId}` : '/results')}
                 className="bg-[#00d4aa] text-black px-4 py-2 rounded text-xs font-bold font-mono uppercase tracking-wider hover:bg-opacity-95 transition-all flex items-center space-x-1.5 cursor-pointer"
               >
                 <span className="font-bold">Inspect Performance Report</span>

@@ -1,347 +1,357 @@
-import React, { useState } from 'react';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  DollarSign, 
-  Activity, 
-  Clock, 
-  ShieldAlert, 
-  Gauge, 
-  Download,
-  CheckCircle2,
-  ChevronUp,
-  ChevronDown,
-  ArrowDownRight,
-  TrendingDown
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  ArrowLeft, BarChart3, TrendingUp, Clock, ShieldAlert,
+  Download, ChevronUp, ChevronDown, Loader2, AlertCircle,
 } from 'lucide-react';
-import { useStrategyStore } from '../store/useStrategyStore';
 import { useBacktestStore } from '../store/useBacktestStore';
+import { useStrategyStore } from '../store/useStrategyStore';
 import { useToastStore } from '../store/useToastStore';
+import { api, ApiError } from '../lib/api';
 import { EquityCurve } from '../components/charts/EquityCurve';
 import { TradeDistribution } from '../components/charts/TradeDistribution';
 
 export const Results: React.FC = () => {
+  const { runId } = useParams<{ runId: string }>();
+  const navigate = useNavigate();
   const { strategies } = useStrategyStore();
-  const { metrics, trades, activeResultId, setActiveResultId } = useBacktestStore();
+  const { metrics, trades, fetchRunResult } = useBacktestStore();
   const { addToast } = useToastStore();
 
-  // Selected Results Strategy ID
-  const activeStratId = activeResultId || 'strat-1';
-  const activeStrat = strategies.find((s) => s.id === activeStratId) || strategies[0];
+  const [isLoading, setIsLoading]   = useState(true);
+  const [runInfo, setRunInfo]       = useState<any>(null);
+  const [loadError, setLoadError]   = useState<string | null>(null);
+  const [sortField, setSortField]   = useState<string>('index');
+  const [sortAsc, setSortAsc]       = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize]       = useState(25);
 
-  // Retrieve matching metrics and trades lists
-  const currentMetrics = metrics[activeStratId] || metrics['strat-1'];
-  const currentTradesList = trades[activeStratId] || trades['strat-1'];
+  useEffect(() => {
+    if (!runId) { navigate('/results'); return; }
+    setIsLoading(true);
+    setLoadError(null);
 
-  // Sorting state for the Trade Log Table
-  const [sortField, setSortField] = useState<string>('index');
-  const [sortAscending, setSortAscending] = useState<boolean>(true);
+    Promise.all([
+      api.get<any>(`/backtest/${runId}`).then(d => setRunInfo(d)),
+      fetchRunResult(runId, runId),
+    ])
+      .catch(err => setLoadError(err instanceof ApiError ? err.message : 'Failed to load run.'))
+      .finally(() => setIsLoading(false));
+  }, [runId]);
+
+  const currentMetrics    = runId ? metrics[runId] : undefined;
+  const currentTradesList = runId ? (trades[runId] ?? []) : [];
+
+  const strategyName = runInfo
+    ? (strategies.find(s => s.id === runInfo.strategy_id)?.name ?? (runInfo.strategy_id as string)?.slice(0, 8) + '…')
+    : '—';
 
   const handleSort = (field: string) => {
-    if (sortField === field) {
-      setSortAscending(!sortAscending);
-    } else {
-      setSortField(field);
-      setSortAscending(true);
-    }
+    if (sortField === field) setSortAsc(!sortAsc);
+    else { setSortField(field); setSortAsc(true); }
+    setCurrentPage(1);
   };
 
-  // Sort trades list
   const sortedTrades = [...currentTradesList].sort((a: any, b: any) => {
-    let valA = a[sortField];
-    let valB = b[sortField];
-
-    if (typeof valA === 'string') {
-      return sortAscending ? valA.localeCompare(valB) : valB.localeCompare(valA);
-    }
-    return sortAscending ? valA - valB : valB - valA;
+    const valA = a[sortField], valB = b[sortField];
+    if (typeof valA === 'string') return sortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+    return sortAsc ? valA - valB : valB - valA;
   });
 
+  const totalPages = Math.max(1, Math.ceil(sortedTrades.length / pageSize));
+  const pageStart = (currentPage - 1) * pageSize;
+  const paginatedTrades = sortedTrades.slice(pageStart, pageStart + pageSize);
+
   const handleExportCSV = () => {
-    addToast(`Compiling performance tick logs for "${activeStrat?.name}"...`, 'info');
+    addToast('Compiling trade logs…', 'info');
     setTimeout(() => {
-      // Simulate download
       const headers = 'Trade,Date,Pair,Direction,Entry,Exit,Pips,PnL,Balance\n';
-      const rows = currentTradesList.map(t => `${t.index},"${t.date}",${t.pair},${t.direction},${t.entryPrice},${t.exitPrice},${t.pips},${t.pnl},${t.balance}`).join('\n');
-      
+      const rows = currentTradesList
+        .map((t: any) => `${t.index},"${t.date}",${t.pair},${t.direction},${t.entryPrice},${t.exitPrice},${t.pips},${t.pnl},${t.balance}`)
+        .join('\n');
       const blob = new Blob([headers + rows], { type: 'text/csv' });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.setAttribute('href', url);
-      a.setAttribute('download', `AlgoForge_Report_${activeStrat?.name.replace(/\s+/g, '_')}.csv`);
+      a.href = url;
+      a.download = `AlgoForge_Report_${runId}.csv`;
       a.click();
-      
-      addToast(`CSV Performance Report exported successfully. Compiled ${currentTradesList.length} trades!`, 'success');
-    }, 1000);
+      addToast(`CSV exported — ${currentTradesList.length} trades.`, 'success');
+    }, 500);
   };
+
+  // ─── Loading / error states ────────────────────────────────────────────────
+
+  if (isLoading) {
+    return (
+      <div className="terminal-card p-12 flex items-center justify-center gap-3">
+        <Loader2 className="w-4 h-4 text-[#00d4aa] animate-spin" />
+        <span className="text-xs font-mono text-[#00d4aa] tracking-widest">LOADING RUN…</span>
+      </div>
+    );
+  }
+
+  if (loadError || !currentMetrics) {
+    return (
+      <div className="space-y-4">
+        <button
+          onClick={() => navigate('/results')}
+          className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> BACK TO RESULTS
+        </button>
+        <div className="terminal-card p-12 flex flex-col items-center justify-center gap-3">
+          <AlertCircle className="w-8 h-8 text-red-500" />
+          <p className="text-xs font-mono text-red-400">{loadError ?? 'Run data unavailable.'}</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── Equity curve data ────────────────────────────────────────────────────
+
+  const initialCapital = runInfo?.initial_capital ?? 10000;
+  const equityPoints = currentTradesList.map((t: any, idx: number) => {
+    const preceding = currentTradesList.slice(0, idx + 1).map((x: any) => x.balance);
+    const peak = Math.max(initialCapital, ...preceding);
+    const dd = peak === 0 ? 0 : ((peak - t.balance) / peak) * 100;
+    const spyPct = idx * 0.45 + Math.sin(idx / 2.0) * 1.1 - 0.2;
+    let label = t.date;
+    try {
+      const d = new Date(t.date);
+      label = `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]} ${d.getDate()}`;
+    } catch {}
+    return {
+      date: label,
+      balance: t.balance,
+      spy: parseFloat((initialCapital * (1 + spyPct / 100)).toFixed(2)),
+      drawdown: parseFloat(Math.max(0, dd).toFixed(2)),
+    };
+  });
+  const chartData = [{ date: 'Start', balance: initialCapital, spy: initialCapital, drawdown: 0 }, ...equityPoints];
+
+  // ─── Render ───────────────────────────────────────────────────────────────
 
   return (
     <div className="space-y-6">
-      
-      {/* Tab select bar */}
-      <section className="bg-[#111827] border border-[#1f2937] p-2 rounded-md flex flex-wrap gap-1">
-        {strategies.map((strat) => {
-          const isSelected = activeStratId === strat.id;
-          const stratMets = metrics[strat.id];
-          return (
-            <button
-              key={strat.id}
-              onClick={() => setActiveResultId(strat.id)}
-              className={`px-4 py-2.5 rounded text-xs font-mono font-bold tracking-wide transition-all cursor-pointer ${
-                isSelected
-                  ? 'bg-[#00d4aa] text-black shadow-lg shadow-[#00d4aa]/15'
-                  : 'text-gray-400 hover:text-white hover:bg-[#1f2937]'
-              }`}
-            >
-              {strat.name.toUpperCase()} ({strat.instrument})
-              {stratMets && (
-                <span className={`ml-2 text-[9px] px-1.5 py-0.2 rounded ${isSelected ? 'bg-black/15 text-black' : 'bg-emerald-500/10 text-emerald-400'}`}>
-                  +{stratMets.netProfitPercent}%
-                </span>
-              )}
-            </button>
-          );
-        })}
-      </section>
+
+      {/* Back + run header */}
+      <div>
+        <button
+          onClick={() => navigate('/results')}
+          className="flex items-center gap-2 text-xs font-mono text-gray-400 hover:text-white transition-colors cursor-pointer mb-3"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          BACK TO RESULTS
+        </button>
+        <div className="flex items-start justify-between flex-wrap gap-2">
+          <div>
+            <h1 className="text-lg font-mono font-bold tracking-widest text-white uppercase">
+              {strategyName}
+            </h1>
+            {runInfo && (
+              <p className="text-xs font-mono text-gray-500 mt-0.5">
+                {runInfo.instrument} · {runInfo.timeframe} · {runInfo.date_from} → {runInfo.date_to}
+                &nbsp;·&nbsp;${(runInfo.initial_capital as number).toLocaleString()} initial capital
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Stats Board Grid (2x4) */}
       <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Metric 1 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">NET PROFIT</span>
-          <div className="text-xl font-mono font-bold text-[#00d4aa] mt-1">
-            +{currentMetrics?.netProfitPercent || '0.0'}%
+          <div className={`text-xl font-mono font-bold mt-1 ${currentMetrics.netProfitPercent >= 0 ? 'text-[#00d4aa]' : 'text-red-400'}`}>
+            {currentMetrics.netProfitPercent >= 0 ? '+' : ''}{currentMetrics.netProfitPercent}%
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">
-            ${currentMetrics?.netProfitValue.toLocaleString() || '0.00'} Account Value
+            ${currentMetrics.netProfitValue.toLocaleString()} Account Value
           </p>
         </div>
 
-        {/* Metric 2 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">TOTAL TRADES</span>
-          <div className="text-xl font-mono font-bold text-gray-200 mt-1">
-            {currentMetrics?.totalTrades || '0'}
-          </div>
+          <div className="text-xl font-mono font-bold text-gray-200 mt-1">{currentMetrics.totalTrades}</div>
           <p className="text-[10px] text-gray-500 mt-0.5">Completed tick orders</p>
         </div>
 
-        {/* Metric 3 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
-          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">AVG WIN RATE</span>
-          <div className="text-xl font-mono font-bold text-[#00d4aa] mt-1">
-            {currentMetrics?.winRate || '0.0'}%
+          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">WIN RATE</span>
+          <div className={`text-xl font-mono font-bold mt-1 ${currentMetrics.winRate >= 50 ? 'text-[#00d4aa]' : 'text-red-400'}`}>
+            {currentMetrics.winRate.toFixed(1)}%
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">Weighted positive outcomes</p>
         </div>
 
-        {/* Metric 4 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">PROFIT FACTOR</span>
-          <div className="text-xl font-mono font-bold text-gray-200 mt-1">
-            {currentMetrics?.profitFactor || '0.0'}
+          <div className={`text-xl font-mono font-bold mt-1 ${currentMetrics.profitFactor >= 1 ? 'text-gray-200' : 'text-red-400'}`}>
+            {currentMetrics.profitFactor.toFixed(2)}
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">Gross Wins / Gross Losses</p>
         </div>
 
-        {/* Metric 5 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">MAX DRAWDOWN</span>
           <div className="text-xl font-mono font-bold text-red-400 mt-1">
-            {currentMetrics?.maxDrawdown || '0.0'}%
+            {runInfo?.max_drawdown_pct != null ? `${(runInfo.max_drawdown_pct as number).toFixed(2)}%` : `${currentMetrics.maxDrawdown}%`}
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">Peak-to-valley maximal drop</p>
         </div>
 
-        {/* Metric 6 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">AVG HOLD DURATION</span>
           <div className="text-xl font-mono font-bold text-gray-200 mt-1">
-            {currentMetrics?.avgTradeDuration || '0m'}
+            {runInfo?.avg_trade_duration != null
+              ? `${Math.floor(runInfo.avg_trade_duration)}h ${Math.round((runInfo.avg_trade_duration % 1) * 60)}m`
+              : currentMetrics.avgTradeDuration}
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">Execution to close window</p>
         </div>
 
-        {/* Metric 7 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
           <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">SHARPE RATIO</span>
-          <div className="text-xl font-mono font-bold text-emerald-400 mt-1">
-            {currentMetrics?.sharpeRatio || '0.0'}
+          <div className={`text-xl font-mono font-bold mt-1 ${currentMetrics.sharpeRatio >= 1 ? 'text-emerald-400' : 'text-gray-400'}`}>
+            {currentMetrics.sharpeRatio.toFixed(2)}
           </div>
           <p className="text-[10px] text-gray-500 mt-0.5">Risk-adjusted reward scale</p>
         </div>
 
-        {/* Metric 8 */}
         <div className="bg-[#111827] border border-[#1f2937] p-4 rounded-md">
-          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">EXPECTANCY (PIPS)</span>
+          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider block">EXPECTANCY</span>
           <div className="text-xl font-mono font-bold text-[#00d4aa] mt-1">
-            {currentMetrics?.expectancy || '0.0'} pips
+            {currentMetrics.expectancy.toFixed(2)}
           </div>
-          <p className="text-[10px] text-gray-500 mt-0.5">Expected profit per trade execution</p>
+          <p className="text-[10px] text-gray-500 mt-0.5">Expected profit per trade</p>
         </div>
       </section>
 
-      {/* Charts section: Grid Equity vs Bar distribution */}
-      {(() => {
-        // Generate highly cohesive, dynamic equity and drawdown trajectory matching currentTradesList
-        const equityData = currentTradesList.map((t, idx) => {
-          // Track highest balance seen up to this trade to compute the correct running drawdown
-          const antecedentBalances = currentTradesList.slice(0, idx + 1).map(x => x.balance);
-          const localPeak = Math.max(10000, ...antecedentBalances);
-          const drawdown = localPeak === 0 ? 0 : ((localPeak - t.balance) / localPeak) * 100;
-
-          // SPY index benchmark trend
-          const spyPctIncrease = idx * 0.45 + (Math.sin(idx / 2.0) * 1.1) - 0.2;
-          const spyVal = 10000 * (1 + spyPctIncrease / 100);
-
-          // Extract cleaner visual date
-          let cleanDate = t.date;
-          try {
-            const parts = t.date.split(' ');
-            const dateParts = parts[0].split('-');
-            if (dateParts.length === 3) {
-              const monthIndex = parseInt(dateParts[1], 10) - 1;
-              const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][monthIndex];
-              const dayName = parseInt(dateParts[2], 10);
-              cleanDate = `${monthName} ${dayName}`;
-            }
-          } catch (e) {
-            // fallback
-          }
-
-          return {
-            date: cleanDate,
-            balance: t.balance,
-            spy: parseFloat(spyVal.toFixed(2)),
-            drawdown: parseFloat(Math.max(0, drawdown).toFixed(2))
-          };
-        });
-
-        // Prepend starting baseline point so the curve has an origin point at $10k
-        const chartData = [
-          { date: 'Start', balance: 10000, spy: 10000, drawdown: 0 },
-          ...equityData
-        ];
-
-        return (
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider">Growth Performance Curve</span>
-              <EquityCurve strategyName={activeStrat?.name} data={chartData} />
-            </div>
-            <div className="space-y-2">
-              <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider">Wins vs Losses Distribution</span>
-              <TradeDistribution />
-            </div>
-          </section>
-        );
-      })()}
+      {/* Charts */}
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-2">
+          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider">Growth Performance Curve</span>
+          <EquityCurve strategyName={strategyName} data={chartData} />
+        </div>
+        <div className="space-y-2">
+          <span className="text-[10px] font-mono text-[#6b7280] uppercase tracking-wider">Wins vs Losses Distribution</span>
+          <TradeDistribution trades={currentTradesList} />
+        </div>
+      </section>
 
       {/* Trade Log Table */}
       <section className="bg-[#111827] border border-[#1f2937] rounded-md overflow-hidden flex flex-col">
-        {/* Table header menu */}
         <div className="px-4 py-3 bg-[#111827] border-b border-[#1f2937] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="space-y-0.5">
             <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-gray-300">
-              Simulation Trade Logs ledger
+              Simulation Trade Logs Ledger
             </h3>
             <p className="text-[11px] text-gray-500 leading-tight">
-              Detailed list of the last 20 trade entries executed during the backtest of {activeStrat?.name}.
+              {sortedTrades.length} trades executed — {strategyName}
             </p>
           </div>
-
-          <button
-            onClick={handleExportCSV}
-            className="flex items-center space-x-1.5 py-1.5 px-3 rounded bg-transparent border border-gray-700 hover:border-[#00d4aa] text-gray-300 hover:text-white transition-all text-xs font-mono cursor-pointer"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>Download CSV Report</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-mono text-gray-500 uppercase">Rows</span>
+              <select
+                value={pageSize}
+                onChange={(e) => { setPageSize(Number(e.target.value)); setCurrentPage(1); }}
+                className="bg-[#1f2937] border border-[#374151] rounded px-2 py-1 text-[11px] font-mono text-gray-300 focus:border-[#00d4aa] focus:outline-none cursor-pointer"
+              >
+                {[10, 25, 50, 100].map(n => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </div>
+            <button
+              onClick={handleExportCSV}
+              className="flex items-center space-x-1.5 py-1.5 px-3 rounded bg-transparent border border-gray-700 hover:border-[#00d4aa] text-gray-300 hover:text-white transition-all text-xs font-mono cursor-pointer"
+            >
+              <Download className="w-3.5 h-3.5" />
+              <span>Download CSV Report</span>
+            </button>
+          </div>
         </div>
 
-        {/* Table representation */}
         <div className="overflow-x-auto min-w-full">
           <table className="w-full text-left border-collapse select-text">
             <thead>
               <tr className="bg-[#0a0e17] text-[10px] font-mono text-[#6b7280] border-b border-[#1f2937] select-none">
-                <th className="py-2.5 px-4 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('index')}>
-                  <div className="flex items-center space-x-1">
-                    <span>#</span>
-                    {sortField === 'index' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th className="py-2.5 px-3 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('date')}>
-                  <div className="flex items-center space-x-1">
-                    <span>Date Clock</span>
-                    {sortField === 'date' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th className="py-2.5 px-2">Pair</th>
-                <th className="py-2.5 px-3 cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('direction')}>
-                  <div className="flex items-center space-x-1">
-                    <span>Order</span>
-                    {sortField === 'direction' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th className="py-2.5 px-3 text-right">Entry</th>
-                <th className="py-2.5 px-3 text-right">Exit</th>
-                <th className="py-2.5 px-3 text-right cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('pips')}>
-                  <div className="flex items-center justify-end space-x-1">
-                    <span>Pips</span>
-                    {sortField === 'pips' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th className="py-2.5 px-3 text-right cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('pnl')}>
-                  <div className="flex items-center justify-end space-x-1">
-                    <span>Net P&L ($)</span>
-                    {sortField === 'pnl' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
-                <th className="py-2.5 px-4 text-right cursor-pointer hover:text-white transition-colors" onClick={() => handleSort('balance')}>
-                  <div className="flex items-center justify-end space-x-1">
-                    <span>Total Balance</span>
-                    {sortField === 'balance' && (sortAscending ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
-                  </div>
-                </th>
+                {[
+                  { label: '#',           field: 'index',     align: '' },
+                  { label: 'Open Time',   field: 'date',      align: '' },
+                  { label: 'Pair',        field: null,        align: '' },
+                  { label: 'Order',       field: 'direction', align: '' },
+                  { label: 'Entry Price', field: null,        align: 'text-right' },
+                  { label: 'Exit Price',  field: null,        align: 'text-right' },
+                  { label: 'Reason',      field: null,        align: '' },
+                  { label: 'Pips',        field: 'pips',      align: 'text-right' },
+                  { label: 'Net P&L ($)', field: 'pnl',       align: 'text-right' },
+                  { label: 'Balance',     field: 'balance',   align: 'text-right' },
+                ].map(({ label, field, align }) => (
+                  <th
+                    key={label}
+                    className={`py-2.5 px-3 ${align} ${field ? 'cursor-pointer hover:text-white transition-colors' : ''}`}
+                    onClick={field ? () => handleSort(field) : undefined}
+                  >
+                    <div className={`flex items-center ${align.includes('right') ? 'justify-end' : ''} space-x-1`}>
+                      <span>{label}</span>
+                      {field && sortField === field && (sortAsc ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />)}
+                    </div>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-[#1f2937]/70 text-xs font-mono">
-              {sortedTrades.map((trade) => {
+              {paginatedTrades.length === 0 ? (
+                <tr>
+                  <td colSpan={10} className="py-8 text-center text-gray-600 text-xs font-mono">
+                    No trades recorded for this run.
+                  </td>
+                </tr>
+              ) : paginatedTrades.map((trade: any) => {
                 const isLoss = trade.pnl < 0;
+                const decimals = ['DXY', 'USDX'].includes(trade.pair) ? 3 : ['XAUUSD', 'USDJPY', 'EURJPY', 'GBPJPY', 'AUDJPY', 'CADJPY'].includes(trade.pair) ? 2 : 5;
+                const exitReasonColor: Record<string, string> = {
+                  TP:     'bg-emerald-400/15 text-emerald-400',
+                  SL:     'bg-red-400/15 text-red-400',
+                  SIGNAL: 'bg-blue-400/15 text-blue-400',
+                  EOD:    'bg-gray-500/15 text-gray-400',
+                  TIME:   'bg-orange-400/15 text-orange-400',
+                };
                 return (
                   <tr key={trade.id} className="hover:bg-[#1f2937]/45 transition-colors">
-                    <td className="py-2 px-4 text-gray-500">
-                      {trade.index}
-                    </td>
-                    <td className="py-2 px-3 text-gray-400">
-                      {trade.date}
-                    </td>
-                    <td className="py-2 px-2 text-white font-bold select-all">
-                      {trade.pair}
-                    </td>
+                    <td className="py-2 px-3 text-gray-500">{trade.index}</td>
+                    <td className="py-2 px-3 text-gray-400 whitespace-nowrap">{trade.date}</td>
+                    <td className="py-2 px-3 text-white font-bold select-all">{trade.pair}</td>
                     <td className="py-2 px-3">
-                      <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded ${
-                        trade.direction === 'LONG'
-                          ? 'bg-[#00d4aa]/15 text-[#00d4aa]'
-                          : 'bg-[#ef4444]/15 text-[#ef4444]'
+                      <span className={`text-[9px] font-bold px-1.5 rounded ${
+                        trade.direction === 'LONG' ? 'bg-[#00d4aa]/15 text-[#00d4aa]' : 'bg-[#ef4444]/15 text-[#ef4444]'
                       }`}>
                         {trade.direction}
                       </span>
                     </td>
-                    <td className="py-2 px-3 text-right text-gray-300">
-                      {trade.entryPrice.toFixed(trade.pair === 'XAUUSD' ? 2 : 4)}
+                    <td className="py-2 px-3 text-right text-gray-300 tabular-nums">
+                      {(trade.entryPrice as number).toFixed(decimals)}
                     </td>
-                    <td className="py-2 px-3 text-right text-gray-300">
-                      {trade.exitPrice.toFixed(trade.pair === 'XAUUSD' ? 2 : 4)}
+                    <td className="py-2 px-3 text-right text-gray-300 tabular-nums">
+                      {(trade.exitPrice as number).toFixed(decimals)}
                     </td>
-                    <td className={`py-2 px-3 text-right font-bold ${isLoss ? 'text-red-400' : 'text-[#00d4aa]'}`}>
+                    <td className="py-2 px-3">
+                      {trade.exitReason ? (
+                        <span className={`text-[9px] font-bold px-1.5 rounded ${exitReasonColor[trade.exitReason] ?? 'bg-gray-500/15 text-gray-400'}`}>
+                          {trade.exitReason}
+                        </span>
+                      ) : '—'}
+                    </td>
+                    <td className={`py-2 px-3 text-right font-bold tabular-nums ${isLoss ? 'text-red-400' : 'text-[#00d4aa]'}`}>
                       {trade.pips > 0 ? `+${trade.pips}` : trade.pips}
                     </td>
-                    <td className={`py-2 px-3 text-right font-bold ${isLoss ? 'text-[#ef4444]' : 'text-[#00d4aa]'}`}>
+                    <td className={`py-2 px-3 text-right font-bold tabular-nums ${isLoss ? 'text-[#ef4444]' : 'text-[#00d4aa]'}`}>
                       {isLoss ? '-' : '+'}${Math.abs(trade.pnl).toFixed(2)}
                     </td>
-                    <td className="py-2 px-4 text-right text-[#f9fafb] font-bold">
-                      ${trade.balance.toLocaleString()}
+                    <td className="py-2 px-3 text-right text-[#f9fafb] font-bold tabular-nums">
+                      ${(trade.balance as number).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </td>
                   </tr>
                 );
@@ -349,6 +359,69 @@ export const Results: React.FC = () => {
             </tbody>
           </table>
         </div>
+
+        {/* Pagination footer */}
+        {sortedTrades.length > 0 && (
+          <div className="px-4 py-3 border-t border-[#1f2937] flex flex-col sm:flex-row items-center justify-between gap-2">
+            <span className="text-[11px] font-mono text-gray-500">
+              Showing {pageStart + 1}–{Math.min(pageStart + pageSize, sortedTrades.length)} of {sortedTrades.length} trades
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="px-2 py-1 text-[11px] font-mono rounded border border-[#1f2937] text-gray-400 hover:text-white hover:border-[#374151] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                «
+              </button>
+              <button
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="px-2.5 py-1 text-[11px] font-mono rounded border border-[#1f2937] text-gray-400 hover:text-white hover:border-[#374151] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                ‹
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(p => p === 1 || p === totalPages || Math.abs(p - currentPage) <= 2)
+                .reduce<(number | '…')[]>((acc, p, i, arr) => {
+                  if (i > 0 && p - (arr[i - 1] as number) > 1) acc.push('…');
+                  acc.push(p);
+                  return acc;
+                }, [])
+                .map((p, i) =>
+                  p === '…' ? (
+                    <span key={`ellipsis-${i}`} className="px-2 py-1 text-[11px] font-mono text-gray-600">…</span>
+                  ) : (
+                    <button
+                      key={p}
+                      onClick={() => setCurrentPage(p as number)}
+                      className={`px-2.5 py-1 text-[11px] font-mono rounded border transition-colors cursor-pointer ${
+                        currentPage === p
+                          ? 'bg-[#00d4aa]/10 text-[#00d4aa] border-[#00d4aa]/40'
+                          : 'border-[#1f2937] text-gray-400 hover:text-white hover:border-[#374151]'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  )
+                )}
+              <button
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="px-2.5 py-1 text-[11px] font-mono rounded border border-[#1f2937] text-gray-400 hover:text-white hover:border-[#374151] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                ›
+              </button>
+              <button
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="px-2 py-1 text-[11px] font-mono rounded border border-[#1f2937] text-gray-400 hover:text-white hover:border-[#374151] disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                »
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
     </div>

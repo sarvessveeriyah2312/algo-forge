@@ -1,0 +1,448 @@
+INFO:     Will watch for changes in these directories: ['C:\\Users\\User\\Documents\\algo-forge\\algoforge-backend']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [10284] using WatchFiles
+INFO:     Started server process [22016]
+INFO:     Waiting for application startup.
+{"ts": "2026-06-11T18:35:55.709844", "level": "INFO", "logger": "main", "msg": "AlgoForge API starting up (version=0.1.0)"}
+2026-06-12 02:35:55,775 INFO sqlalchemy.engine.Engine select pg_catalog.version()
+{"ts": "2026-06-11T18:35:55.775510", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "select pg_catalog.version()"}
+2026-06-12 02:35:55,775 INFO sqlalchemy.engine.Engine [raw sql] ()
+{"ts": "2026-06-11T18:35:55.775510", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[raw sql] ()"}
+2026-06-12 02:35:55,779 INFO sqlalchemy.engine.Engine select current_schema()
+{"ts": "2026-06-11T18:35:55.780346", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "select current_schema()"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine [raw sql] ()
+{"ts": "2026-06-11T18:35:55.780346", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[raw sql] ()"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine show standard_conforming_strings
+{"ts": "2026-06-11T18:35:55.780653", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "show standard_conforming_strings"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine [raw sql] ()
+{"ts": "2026-06-11T18:35:55.780653", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[raw sql] ()"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:35:55.780653", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.780653", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,780 INFO sqlalchemy.engine.Engine [generated in 0.00019s] ('strategies', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.780653", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00019s] ('strategies', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine [cached since 0.005615s ago] ('indicators', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.005615s ago] ('indicators', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine [cached since 0.006416s ago] ('backtest_runs', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.006416s ago] ('backtest_runs', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine [cached since 0.006984s ago] ('trades', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.006984s ago] ('trades', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine [cached since 0.007548s ago] ('users', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.007548s ago] ('users', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_class.relname 
+FROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace 
+WHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR
+{"ts": "2026-06-11T18:35:55.787586", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_class.relname \nFROM pg_catalog.pg_class JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_class.relnamespace \nWHERE pg_catalog.pg_class.relname = $1::VARCHAR AND pg_catalog.pg_class.relkind = ANY (ARRAY[$2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR]) AND pg_catalog.pg_table_is_visible(pg_catalog.pg_class.oid) AND pg_catalog.pg_namespace.nspname != $7::VARCHAR"}
+2026-06-12 02:35:55,787 INFO sqlalchemy.engine.Engine [cached since 0.00808s ago] ('refresh_tokens', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.793256", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.00808s ago] ('refresh_tokens', 'r', 'p', 'f', 'v', 'm', 'pg_catalog')"}
+2026-06-12 02:35:55,794 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.794289", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,794 INFO sqlalchemy.engine.Engine [generated in 0.00023s] ('directionenum', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.794289", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00023s] ('directionenum', 'pg_catalog')"}
+2026-06-12 02:35:55,794 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.794289", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,794 INFO sqlalchemy.engine.Engine [cached since 0.001808s ago] ('indicatorcategoryenum', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.794289", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.001808s ago] ('indicatorcategoryenum', 'pg_catalog')"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine [cached since 0.002714s ago] ('backteststatusenum', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.002714s ago] ('backteststatusenum', 'pg_catalog')"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine [cached since 0.003462s ago] ('tradedirectionenum', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.003462s ago] ('tradedirectionenum', 'pg_catalog')"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,797 INFO sqlalchemy.engine.Engine [cached since 0.004176s ago] ('exitreasonenum', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.797133", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.004176s ago] ('exitreasonenum', 'pg_catalog')"}
+2026-06-12 02:35:55,799 INFO sqlalchemy.engine.Engine SELECT pg_catalog.pg_type.typname 
+FROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace 
+WHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR
+{"ts": "2026-06-11T18:35:55.799836", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT pg_catalog.pg_type.typname \nFROM pg_catalog.pg_type JOIN pg_catalog.pg_namespace ON pg_catalog.pg_namespace.oid = pg_catalog.pg_type.typnamespace \nWHERE pg_catalog.pg_type.typname = $1::VARCHAR AND pg_catalog.pg_type_is_visible(pg_catalog.pg_type.oid) AND pg_catalog.pg_namespace.nspname != $2::VARCHAR"}
+2026-06-12 02:35:55,799 INFO sqlalchemy.engine.Engine [cached since 0.00489s ago] ('userrole', 'pg_catalog')
+{"ts": "2026-06-11T18:35:55.799836", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.00489s ago] ('userrole', 'pg_catalog')"}
+2026-06-12 02:35:55,800 INFO sqlalchemy.engine.Engine COMMIT
+{"ts": "2026-06-11T18:35:55.800179", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "COMMIT"}
+2026-06-12 02:35:55,802 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:35:55.802853", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:35:55,802 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM indicators
+{"ts": "2026-06-11T18:35:55.802853", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM indicators"}
+2026-06-12 02:35:55,802 INFO sqlalchemy.engine.Engine [generated in 0.00023s] ()
+{"ts": "2026-06-11T18:35:55.802853", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00023s] ()"}
+2026-06-12 02:35:55,818 INFO sqlalchemy.engine.Engine INSERT INTO indicators (id, slug, name, category, parameters, description, sort_order) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::indicatorcategoryenum, $5::JSON, $6::VARCHAR, $7::INTEGER), ($8::UUID, $9::VARCHAR, $10::VARCHAR, $11::indicatorcat ... 2326 characters truncated ... tegoryenum, $159::JSON, $160::VARCHAR, $161::INTEGER) RETURNING indicators.created_at, indicators.id
+{"ts": "2026-06-11T18:35:55.818259", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "INSERT INTO indicators (id, slug, name, category, parameters, description, sort_order) VALUES ($1::UUID, $2::VARCHAR, $3::VARCHAR, $4::indicatorcategoryenum, $5::JSON, $6::VARCHAR, $7::INTEGER), ($8::UUID, $9::VARCHAR, $10::VARCHAR, $11::indicatorcat ... 2326 characters truncated ... tegoryenum, $159::JSON, $160::VARCHAR, $161::INTEGER) RETURNING indicators.created_at, indicators.id"}
+2026-06-12 02:35:55,818 INFO sqlalchemy.engine.Engine [generated in 0.00026s (insertmanyvalues) 1/1 (ordered)] (UUID('2be77d6a-cb11-42e4-9afc-4ffb5424e198'), 'ema', 'Exponential Moving Average (EMA)', 'TREND', '[{"key": "period", "name": "Period", "type": "number", "default": 20}, {"key": "source", "name": "Source", "type": "select", "default": "close", "options": ["close", "open", "high", "low", "hl2", "hlc3", "ohlc4"]}]', 'Calculates the exponential moving average of price over a specific window of trading periods, giving more weight to recent prices.', 10, UUID('dffccbbd-a359-4eb2-a423-35651829f28d'), 'sma', 'Simple Moving Average (SMA)', 'TREND', '[{"key": "period", "name": "Period", "type": "number", "default": 50}, {"key": "source", "name": "Source", "type": "select", "default": "close", "options": ["close", "open", "high", "low"]}]', 'An arithmetic moving average calculated by adding recent closing prices and then dividing by the number of time periods.', 11, UUID('cfe62bd4-1ae4-4526-b4f3-b32c105bb1a0'), 'vwap', 'Volume Weighted Average Price (VWAP)', 'TREND', '[{"key": "anchor", "name": "Anchor Period", "type": "select", "default": "Session", "options": ["Session", "Week", "Month", "Year"]}]', 'Provides the average price a security has traded at throughout the day, based on both volume and price.', 12, UUID('6a41847c-e1cc-495e-a52a-65af447fd406'), 'supertrend', 'Supertrend', 'TREND', '[{"key": "atrPeriod", "name": "ATR Period", "type": "number", "default": 10}, {"key": "multiplier", "name": "Multiplier", "type": "number", "default": 3}]', 'A trend-following indicator based on Average True Range (ATR) that overlays buy and sell labels on the price action.', 13, UUID('58aae6f0-c1a3-4f75-a68f-81fa9955243f'), 'vwap_upper_touch', 'VWAP Upper Band Touch', 'TREND', '[{"key": "multiplier", "name": "Band Multiplier", "type": "number", "default": 1.5}]', 'Returns a signal (1.0) when the close price exceeds the upper VWAP standard deviation band, indicating a potential mean-reversion SHORT opportunity. Use in exit conditions or SHORT entry blocks.', 14, UUID('1e343085-e4f6-458e-9db7-b23cca525a4b'), 'vwap_lower_touch', 'VWAP Lower Band Touch', 'TREND', '[{"key": "multiplier", "name": "Band Multiplier", "type": "number", "default": 1.5}]', 'Returns a signal (1.0) when the close price falls below the lower VWAP standard deviation band, indicating a potential mean-reversion LONG opportunity. Use in entry conditions or LONG signal blocks.', 15, UUID('4c88b141-5240-401c-9c01-f4aa74a0d308'), 'ichimoku', 'Ichimoku Cloud', 'TREND', '[{"key": "conversionLine", "name": "Conversion Line (Tenkan)", "type": "number", "default": 9}, {"key": "baseLine", "name": "Base Line (Kijun)", "typ ... (57 characters truncated) ... me": "Leading Span B (Senkou B)", "type": "number", "default": 52}, {"key": "displacement", "name": "Displacement", "type": "number", "default": 26}]', 'A comprehensive indicator that defines support/resistance, identifies trend direction, gauges momentum and provides trading signals.', 16, UUID('77944fdb-e8c3-47d1-b181-82a796a13972') ... 61 parameters truncated ... 32, UUID('03cdb785-f2c3-41ef-a811-7ff17f12ebc9'), 'obv', 'On-Balance Volume (OBV)', 'VOLUME', '[]', 'Uses volume flow to predict changes in stock price, acting as a momentum indicator that correlates volume with breakouts.', 40, UUID('8515de27-1635-466b-9042-04898b6c9572'), 'cmf', 'Chaikin Money Flow (CMF)', 'VOLUME', '[{"key": "period", "name": "Period", "type": "number", "default": 20}]', 'Measures the amount of Money Flow Volume over a specific period, indicating accumulation and distribution behavior.', 41, UUID('43e9e708-8953-425d-879e-56c84e1b2e48'), 'fvg', 'Fair Value Gap (FVG)', 'ICT', '[{"key": "minSizePips", "name": "Min Size (Pips)", "type": "number", "default": 5}, {"key": "colorUnfilled", "name": "Highlight Gaps", "type": "boolean", "default": true}]', 'Identifies 3-candle price gaps where heavy structural interest left incomplete buy or sell side deliveries.', 50, UUID('5e6b7eb0-0520-4e22-a051-256dccfeea68'), 'orderblock', 'Order Block (OB)', 'ICT', '[{"key": "lookback", "name": "Lookback Candles", "type": "number", "default": 200}, {"key": "showMitigated", "name": "Show Mitigated OBs", "type": "boolean", "default": false}]', 'Pinpoints institutional trace areas where large limit buying/selling transactions occurred, establishing key support/resistance zones.', 51, UUID('ecc2a989-190d-4dba-8e1e-e838936517e8'), 'liquidity', 'Liquidity Sweeps', 'ICT', '[{"key": "levelTimeframe", "name": "Swing Level", "type": "select", "default": "Daily", "options": ["Hourly", "Daily", "Weekly"]}]', 'Tracks sweeps of high/low pools where stop losses are clustered, often indicating instant sharp market reversals.', 52, UUID('5dc53b3b-679e-45e3-811c-93597b105777'), 'bos', 'Break of Structure (BOS)', 'ICT', '[{"key": "bosMethod", "name": "BOS Confirmation", "type": "select", "default": "Candle Close", "options": ["Candle Close", "Wick Penetration"]}]', 'Identifies price breaks that align with the ongoing major structural trend line direction.', 53, UUID('044804f4-cd1c-43ce-bc0a-3d56d07d477c'), 'mss', 'Market Structure Shift (MSS)', 'ICT', '[{"key": "lookbackBars", "name": "Swing Period", "type": "number", "default": 50}]', 'Identifies the first break of structural highs or lows that hints at a fundamental trend reversal direction.', 54)
+{"ts": "2026-06-11T18:35:55.818259", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00026s (insertmanyvalues) 1/1 (ordered)] (UUID('2be77d6a-cb11-42e4-9afc-4ffb5424e198'), 'ema', 'Exponential Moving Average (EMA)', 'TREND', '[{\"key\": \"period\", \"name\": \"Period\", \"type\": \"number\", \"default\": 20}, {\"key\": \"source\", \"name\": \"Source\", \"type\": \"select\", \"default\": \"close\", \"options\": [\"close\", \"open\", \"high\", \"low\", \"hl2\", \"hlc3\", \"ohlc4\"]}]', 'Calculates the exponential moving average of price over a specific window of trading periods, giving more weight to recent prices.', 10, UUID('dffccbbd-a359-4eb2-a423-35651829f28d'), 'sma', 'Simple Moving Average (SMA)', 'TREND', '[{\"key\": \"period\", \"name\": \"Period\", \"type\": \"number\", \"default\": 50}, {\"key\": \"source\", \"name\": \"Source\", \"type\": \"select\", \"default\": \"close\", \"options\": [\"close\", \"open\", \"high\", \"low\"]}]', 'An arithmetic moving average calculated by adding recent closing prices and then dividing by the number of time periods.', 11, UUID('cfe62bd4-1ae4-4526-b4f3-b32c105bb1a0'), 'vwap', 'Volume Weighted Average Price (VWAP)', 'TREND', '[{\"key\": \"anchor\", \"name\": \"Anchor Period\", \"type\": \"select\", \"default\": \"Session\", \"options\": [\"Session\", \"Week\", \"Month\", \"Year\"]}]', 'Provides the average price a security has traded at throughout the day, based on both volume and price.', 12, UUID('6a41847c-e1cc-495e-a52a-65af447fd406'), 'supertrend', 'Supertrend', 'TREND', '[{\"key\": \"atrPeriod\", \"name\": \"ATR Period\", \"type\": \"number\", \"default\": 10}, {\"key\": \"multiplier\", \"name\": \"Multiplier\", \"type\": \"number\", \"default\": 3}]', 'A trend-following indicator based on Average True Range (ATR) that overlays buy and sell labels on the price action.', 13, UUID('58aae6f0-c1a3-4f75-a68f-81fa9955243f'), 'vwap_upper_touch', 'VWAP Upper Band Touch', 'TREND', '[{\"key\": \"multiplier\", \"name\": \"Band Multiplier\", \"type\": \"number\", \"default\": 1.5}]', 'Returns a signal (1.0) when the close price exceeds the upper VWAP standard deviation band, indicating a potential mean-reversion SHORT opportunity. Use in exit conditions or SHORT entry blocks.', 14, UUID('1e343085-e4f6-458e-9db7-b23cca525a4b'), 'vwap_lower_touch', 'VWAP Lower Band Touch', 'TREND', '[{\"key\": \"multiplier\", \"name\": \"Band Multiplier\", \"type\": \"number\", \"default\": 1.5}]', 'Returns a signal (1.0) when the close price falls below the lower VWAP standard deviation band, indicating a potential mean-reversion LONG opportunity. Use in entry conditions or LONG signal blocks.', 15, UUID('4c88b141-5240-401c-9c01-f4aa74a0d308'), 'ichimoku', 'Ichimoku Cloud', 'TREND', '[{\"key\": \"conversionLine\", \"name\": \"Conversion Line (Tenkan)\", \"type\": \"number\", \"default\": 9}, {\"key\": \"baseLine\", \"name\": \"Base Line (Kijun)\", \"typ ... (57 characters truncated) ... me\": \"Leading Span B (Senkou B)\", \"type\": \"number\", \"default\": 52}, {\"key\": \"displacement\", \"name\": \"Displacement\", \"type\": \"number\", \"default\": 26}]', 'A comprehensive indicator that defines support/resistance, identifies trend direction, gauges momentum and provides trading signals.', 16, UUID('77944fdb-e8c3-47d1-b181-82a796a13972') ... 61 parameters truncated ... 32, UUID('03cdb785-f2c3-41ef-a811-7ff17f12ebc9'), 'obv', 'On-Balance Volume (OBV)', 'VOLUME', '[]', 'Uses volume flow to predict changes in stock price, acting as a momentum indicator that correlates volume with breakouts.', 40, UUID('8515de27-1635-466b-9042-04898b6c9572'), 'cmf', 'Chaikin Money Flow (CMF)', 'VOLUME', '[{\"key\": \"period\", \"name\": \"Period\", \"type\": \"number\", \"default\": 20}]', 'Measures the amount of Money Flow Volume over a specific period, indicating accumulation and distribution behavior.', 41, UUID('43e9e708-8953-425d-879e-56c84e1b2e48'), 'fvg', 'Fair Value Gap (FVG)', 'ICT', '[{\"key\": \"minSizePips\", \"name\": \"Min Size (Pips)\", \"type\": \"number\", \"default\": 5}, {\"key\": \"colorUnfilled\", \"name\": \"Highlight Gaps\", \"type\": \"boolean\", \"default\": true}]', 'Identifies 3-candle price gaps where heavy structural interest left incomplete buy or sell side deliveries.', 50, UUID('5e6b7eb0-0520-4e22-a051-256dccfeea68'), 'orderblock', 'Order Block (OB)', 'ICT', '[{\"key\": \"lookback\", \"name\": \"Lookback Candles\", \"type\": \"number\", \"default\": 200}, {\"key\": \"showMitigated\", \"name\": \"Show Mitigated OBs\", \"type\": \"boolean\", \"default\": false}]', 'Pinpoints institutional trace areas where large limit buying/selling transactions occurred, establishing key support/resistance zones.', 51, UUID('ecc2a989-190d-4dba-8e1e-e838936517e8'), 'liquidity', 'Liquidity Sweeps', 'ICT', '[{\"key\": \"levelTimeframe\", \"name\": \"Swing Level\", \"type\": \"select\", \"default\": \"Daily\", \"options\": [\"Hourly\", \"Daily\", \"Weekly\"]}]', 'Tracks sweeps of high/low pools where stop losses are clustered, often indicating instant sharp market reversals.', 52, UUID('5dc53b3b-679e-45e3-811c-93597b105777'), 'bos', 'Break of Structure (BOS)', 'ICT', '[{\"key\": \"bosMethod\", \"name\": \"BOS Confirmation\", \"type\": \"select\", \"default\": \"Candle Close\", \"options\": [\"Candle Close\", \"Wick Penetration\"]}]', 'Identifies price breaks that align with the ongoing major structural trend line direction.', 53, UUID('044804f4-cd1c-43ce-bc0a-3d56d07d477c'), 'mss', 'Market Structure Shift (MSS)', 'ICT', '[{\"key\": \"lookbackBars\", \"name\": \"Swing Period\", \"type\": \"number\", \"default\": 50}]', 'Identifies the first break of structural highs or lows that hints at a fundamental trend reversal direction.', 54)"}
+2026-06-12 02:35:55,852 INFO sqlalchemy.engine.Engine COMMIT
+{"ts": "2026-06-11T18:35:55.852270", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "COMMIT"}
+{"ts": "2026-06-11T18:35:55.854280", "level": "INFO", "logger": "main", "msg": "Database tables initialised."}
+2026-06-12 02:35:55,858 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:35:55.858198", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:35:55,858 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM indicators
+{"ts": "2026-06-11T18:35:55.858198", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM indicators"}
+2026-06-12 02:35:55,858 INFO sqlalchemy.engine.Engine [cached since 0.05453s ago] ()
+{"ts": "2026-06-11T18:35:55.858198", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.05453s ago] ()"}
+{"ts": "2026-06-11T18:35:55.859191", "level": "INFO", "logger": "seed", "msg": "Indicator seed delegated to indicator_service."}
+2026-06-12 02:35:55,859 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:35:55.859191", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+{"ts": "2026-06-11T18:35:55.859191", "level": "WARNING", "logger": "main", "msg": "Seed step skipped or failed: name 'select' is not defined"}
+{"ts": "2026-06-11T18:35:55.861703", "level": "INFO", "logger": "main", "msg": "MT5 connected successfully."}
+INFO:     Application startup complete.
+INFO:     127.0.0.1:50086 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58149 - "GET /api/v1/strategies?page_size=100 HTTP/1.1" 307 Temporary Redirect
+2026-06-12 02:36:01,435 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.435350", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,437 INFO sqlalchemy.engine.Engine SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at 
+FROM indicators ORDER BY indicators.sort_order, indicators.name
+{"ts": "2026-06-11T18:36:01.438994", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at \nFROM indicators ORDER BY indicators.sort_order, indicators.name"}
+2026-06-12 02:36:01,438 INFO sqlalchemy.engine.Engine [generated in 0.00066s] ()
+{"ts": "2026-06-11T18:36:01.439424", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00066s] ()"}
+2026-06-12 02:36:01,451 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.451960", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:58149 - "GET /api/v1/strategies?page_size=100 HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:59095 - "GET /api/v1/indicators/all HTTP/1.1" 200 OK
+2026-06-12 02:36:01,473 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.473545", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,474 INFO sqlalchemy.engine.Engine SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at 
+FROM indicators ORDER BY indicators.sort_order, indicators.name
+{"ts": "2026-06-11T18:36:01.475541", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at \nFROM indicators ORDER BY indicators.sort_order, indicators.name"}
+2026-06-12 02:36:01,475 INFO sqlalchemy.engine.Engine [cached since 0.03719s ago] ()
+{"ts": "2026-06-11T18:36:01.475541", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.03719s ago] ()"}
+2026-06-12 02:36:01,481 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.482421", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:58149 - "GET /api/v1/indicators/all HTTP/1.1" 200 OK
+2026-06-12 02:36:01,608 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.608934", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,610 INFO sqlalchemy.engine.Engine SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at 
+FROM strategies ORDER BY strategies.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+{"ts": "2026-06-11T18:36:01.610942", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at \nFROM strategies ORDER BY strategies.created_at DESC \n LIMIT $1::INTEGER OFFSET $2::INTEGER"}
+2026-06-12 02:36:01,610 INFO sqlalchemy.engine.Engine [generated in 0.00025s] (100, 0)
+{"ts": "2026-06-11T18:36:01.610942", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00025s] (100, 0)"}
+2026-06-12 02:36:01,663 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM strategies
+{"ts": "2026-06-11T18:36:01.663092", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM strategies"}
+2026-06-12 02:36:01,663 INFO sqlalchemy.engine.Engine [generated in 0.00038s] ()
+{"ts": "2026-06-11T18:36:01.663092", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00038s] ()"}
+2026-06-12 02:36:01,668 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.668916", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:58149 - "GET /api/v1/strategies/?page_size=100 HTTP/1.1" 200 OK
+2026-06-12 02:36:01,675 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.676982", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,680 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = $1::UUID
+{"ts": "2026-06-11T18:36:01.680981", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at \nFROM users \nWHERE users.id = $1::UUID"}
+2026-06-12 02:36:01,681 INFO sqlalchemy.engine.Engine [generated in 0.00110s] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)
+{"ts": "2026-06-11T18:36:01.681979", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00110s] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)"}
+2026-06-12 02:36:01,687 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.688617", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,689 INFO sqlalchemy.engine.Engine SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at 
+FROM strategies ORDER BY strategies.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+{"ts": "2026-06-11T18:36:01.689339", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at \nFROM strategies ORDER BY strategies.created_at DESC \n LIMIT $1::INTEGER OFFSET $2::INTEGER"}
+2026-06-12 02:36:01,689 INFO sqlalchemy.engine.Engine [cached since 0.07836s ago] (100, 0)
+{"ts": "2026-06-11T18:36:01.689339", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.07836s ago] (100, 0)"}
+2026-06-12 02:36:01,692 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM strategies
+{"ts": "2026-06-11T18:36:01.693528", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM strategies"}
+2026-06-12 02:36:01,693 INFO sqlalchemy.engine.Engine [cached since 0.03064s ago] ()
+{"ts": "2026-06-11T18:36:01.693528", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.03064s ago] ()"}
+2026-06-12 02:36:01,698 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.698705", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:59095 - "GET /api/v1/strategies/?page_size=100 HTTP/1.1" 200 OK
+2026-06-12 02:36:01,739 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.740021", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64513 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-06-12 02:36:01,756 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:01.756931", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:01,757 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = $1::UUID
+{"ts": "2026-06-11T18:36:01.758926", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at \nFROM users \nWHERE users.id = $1::UUID"}
+2026-06-12 02:36:01,758 INFO sqlalchemy.engine.Engine [cached since 0.07808s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)
+{"ts": "2026-06-11T18:36:01.758926", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 0.07808s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)"}
+2026-06-12 02:36:01,782 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:01.783900", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:59095 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+2026-06-12 02:36:15,219 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.220534", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,221 INFO sqlalchemy.engine.Engine SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at 
+FROM indicators ORDER BY indicators.sort_order, indicators.name
+{"ts": "2026-06-11T18:36:15.221529", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at \nFROM indicators ORDER BY indicators.sort_order, indicators.name"}
+2026-06-12 02:36:15,221 INFO sqlalchemy.engine.Engine [cached since 13.78s ago] ()
+{"ts": "2026-06-11T18:36:15.221529", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 13.78s ago] ()"}
+2026-06-12 02:36:15,243 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.244661", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64008 - "GET /api/v1/indicators/all HTTP/1.1" 200 OK
+2026-06-12 02:36:15,263 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.263969", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,265 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = $1::UUID
+{"ts": "2026-06-11T18:36:15.265003", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at \nFROM users \nWHERE users.id = $1::UUID"}
+2026-06-12 02:36:15,265 INFO sqlalchemy.engine.Engine [cached since 13.58s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)
+{"ts": "2026-06-11T18:36:15.266004", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 13.58s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)"}
+2026-06-12 02:36:15,267 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.268517", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64008 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64008 - "GET /api/v1/strategies?page_size=100 HTTP/1.1" 307 Temporary Redirect
+2026-06-12 02:36:15,276 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.276835", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,277 INFO sqlalchemy.engine.Engine SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at 
+FROM indicators ORDER BY indicators.sort_order, indicators.name
+{"ts": "2026-06-11T18:36:15.277837", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT indicators.id, indicators.slug, indicators.name, indicators.category, indicators.parameters, indicators.description, indicators.sort_order, indicators.created_at \nFROM indicators ORDER BY indicators.sort_order, indicators.name"}
+2026-06-12 02:36:15,277 INFO sqlalchemy.engine.Engine [cached since 13.84s ago] ()
+{"ts": "2026-06-11T18:36:15.277837", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 13.84s ago] ()"}
+2026-06-12 02:36:15,281 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.282121", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64008 - "GET /api/v1/indicators/all HTTP/1.1" 200 OK
+2026-06-12 02:36:15,293 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.293119", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,293 INFO sqlalchemy.engine.Engine SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at 
+FROM users 
+WHERE users.id = $1::UUID
+{"ts": "2026-06-11T18:36:15.293761", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT users.id, users.email, users.username, users.hashed_password, users.full_name, users.role, users.is_active, users.is_superuser, users.last_login, users.created_at, users.updated_at \nFROM users \nWHERE users.id = $1::UUID"}
+2026-06-12 02:36:15,293 INFO sqlalchemy.engine.Engine [cached since 13.61s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)
+{"ts": "2026-06-11T18:36:15.293761", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 13.61s ago] (UUID('0cc10650-9a1e-4cf5-9835-fcee4654f859'),)"}
+2026-06-12 02:36:15,297 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.297371", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64008 - "GET /api/v1/auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64008 - "GET /api/v1/strategies?page_size=100 HTTP/1.1" 307 Temporary Redirect
+2026-06-12 02:36:15,661 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.662761", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,664 INFO sqlalchemy.engine.Engine SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at 
+FROM strategies ORDER BY strategies.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+{"ts": "2026-06-11T18:36:15.664753", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at \nFROM strategies ORDER BY strategies.created_at DESC \n LIMIT $1::INTEGER OFFSET $2::INTEGER"}
+2026-06-12 02:36:15,664 INFO sqlalchemy.engine.Engine [cached since 14.05s ago] (100, 0)
+{"ts": "2026-06-11T18:36:15.664753", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 14.05s ago] (100, 0)"}
+2026-06-12 02:36:15,708 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM strategies
+{"ts": "2026-06-11T18:36:15.709468", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM strategies"}
+2026-06-12 02:36:15,709 INFO sqlalchemy.engine.Engine [cached since 14.05s ago] ()
+{"ts": "2026-06-11T18:36:15.710467", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 14.05s ago] ()"}
+2026-06-12 02:36:15,719 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.719421", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:64008 - "GET /api/v1/strategies/?page_size=100 HTTP/1.1" 200 OK
+2026-06-12 02:36:15,734 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:36:15.734050", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:36:15,736 INFO sqlalchemy.engine.Engine SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at 
+FROM strategies ORDER BY strategies.created_at DESC 
+ LIMIT $1::INTEGER OFFSET $2::INTEGER
+{"ts": "2026-06-11T18:36:15.736052", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at \nFROM strategies ORDER BY strategies.created_at DESC \n LIMIT $1::INTEGER OFFSET $2::INTEGER"}
+2026-06-12 02:36:15,737 INFO sqlalchemy.engine.Engine [cached since 14.13s ago] (100, 0)
+{"ts": "2026-06-11T18:36:15.737051", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 14.13s ago] (100, 0)"}
+2026-06-12 02:36:15,741 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM strategies
+{"ts": "2026-06-11T18:36:15.741878", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM strategies"}
+2026-06-12 02:36:15,742 INFO sqlalchemy.engine.Engine [cached since 14.08s ago] ()
+{"ts": "2026-06-11T18:36:15.743879", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 14.08s ago] ()"}
+2026-06-12 02:36:15,747 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:36:15.747799", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:52011 - "GET /api/v1/strategies/?page_size=100 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60481 - "OPTIONS /api/v1/backtest/run HTTP/1.1" 200 OK
+2026-06-12 02:37:58,249 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:37:58.249471", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:37:58,250 INFO sqlalchemy.engine.Engine SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at 
+FROM strategies 
+WHERE strategies.id = $1::UUID
+{"ts": "2026-06-11T18:37:58.250480", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT strategies.id, strategies.name, strategies.description, strategies.instrument, strategies.timeframe, strategies.direction, strategies.session_filter, strategies.risk_per_trade, strategies.max_daily_drawdown, strategies.entry_conditions, strategies.exit_conditions, strategies.filters, strategies.is_active, strategies.created_at, strategies.updated_at \nFROM strategies \nWHERE strategies.id = $1::UUID"}
+2026-06-12 02:37:58,250 INFO sqlalchemy.engine.Engine [generated in 0.00029s] (UUID('22d1ed46-687b-4a28-8a9d-6c4f42deda7d'),)
+{"ts": "2026-06-11T18:37:58.250480", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00029s] (UUID('22d1ed46-687b-4a28-8a9d-6c4f42deda7d'),)"}
+2026-06-12 02:37:58,258 INFO sqlalchemy.engine.Engine INSERT INTO backtest_runs (id, strategy_id, instrument, timeframe, date_from, date_to, initial_capital, spread, commission, slippage, status, net_profit, total_trades, winning_trades, losing_trades, win_rate, profit_factor, max_drawdown, max_drawdown_pct, sharpe_ratio, expectancy, avg_trade_duration, log_output, error_message, started_at, completed_at) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::VARCHAR, $5::DATE, $6::DATE, $7::FLOAT, $8::FLOAT, $9::FLOAT, $10::FLOAT, $11::backteststatusenum, $12::FLOAT, $13::INTEGER, $14::INTEGER, $15::INTEGER, $16::FLOAT, $17::FLOAT, $18::FLOAT, $19::FLOAT, $20::FLOAT, $21::FLOAT, $22::FLOAT, $23::VARCHAR, $24::VARCHAR, $25::TIMESTAMP WITH TIME ZONE, $26::TIMESTAMP WITH TIME ZONE) RETURNING backtest_runs.created_at
+{"ts": "2026-06-11T18:37:58.258410", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "INSERT INTO backtest_runs (id, strategy_id, instrument, timeframe, date_from, date_to, initial_capital, spread, commission, slippage, status, net_profit, total_trades, winning_trades, losing_trades, win_rate, profit_factor, max_drawdown, max_drawdown_pct, sharpe_ratio, expectancy, avg_trade_duration, log_output, error_message, started_at, completed_at) VALUES ($1::UUID, $2::UUID, $3::VARCHAR, $4::VARCHAR, $5::DATE, $6::DATE, $7::FLOAT, $8::FLOAT, $9::FLOAT, $10::FLOAT, $11::backteststatusenum, $12::FLOAT, $13::INTEGER, $14::INTEGER, $15::INTEGER, $16::FLOAT, $17::FLOAT, $18::FLOAT, $19::FLOAT, $20::FLOAT, $21::FLOAT, $22::FLOAT, $23::VARCHAR, $24::VARCHAR, $25::TIMESTAMP WITH TIME ZONE, $26::TIMESTAMP WITH TIME ZONE) RETURNING backtest_runs.created_at"}
+2026-06-12 02:37:58,258 INFO sqlalchemy.engine.Engine [generated in 0.00035s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'), UUID('22d1ed46-687b-4a28-8a9d-6c4f42deda7d'), 'EURUSD', 'M5', datetime.date(2026, 5, 1), datetime.date(2026, 6, 8), 10000.0, 5.0, 3.5, 1.0, 'PENDING', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)
+{"ts": "2026-06-11T18:37:58.258410", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00035s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'), UUID('22d1ed46-687b-4a28-8a9d-6c4f42deda7d'), 'EURUSD', 'M5', datetime.date(2026, 5, 1), datetime.date(2026, 6, 8), 10000.0, 5.0, 3.5, 1.0, 'PENDING', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None)"}
+2026-06-12 02:37:58,287 INFO sqlalchemy.engine.Engine COMMIT
+{"ts": "2026-06-11T18:37:58.288176", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "COMMIT"}
+2026-06-12 02:37:58,291 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:37:58.291175", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:37:58,293 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:37:58.293142", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:37:58,293 INFO sqlalchemy.engine.Engine [generated in 0.00022s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:37:58.293142", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00022s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:37:58,302 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:37:58.302638", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:60481 - "POST /api/v1/backtest/run HTTP/1.1" 202 Accepted
+2026-06-12 02:37:58,305 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:37:58.306414", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:37:58,306 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:37:58.306414", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:37:58,306 INFO sqlalchemy.engine.Engine [generated in 0.00020s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:37:58.307501", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00020s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:37:58,311 INFO sqlalchemy.engine.Engine UPDATE backtest_runs SET status=$1::backteststatusenum, started_at=$2::TIMESTAMP WITH TIME ZONE WHERE backtest_runs.id = $3::UUID
+{"ts": "2026-06-11T18:37:58.311923", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "UPDATE backtest_runs SET status=$1::backteststatusenum, started_at=$2::TIMESTAMP WITH TIME ZONE WHERE backtest_runs.id = $3::UUID"}
+2026-06-12 02:37:58,311 INFO sqlalchemy.engine.Engine [generated in 0.00086s] ('RUNNING', datetime.datetime(2026, 6, 11, 18, 37, 58, 309661, tzinfo=datetime.timezone.utc), UUID('1a6fc691-6742-4703-b593-f41aa772af10'))
+{"ts": "2026-06-11T18:37:58.312933", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00086s] ('RUNNING', datetime.datetime(2026, 6, 11, 18, 37, 58, 309661, tzinfo=datetime.timezone.utc), UUID('1a6fc691-6742-4703-b593-f41aa772af10'))"}
+2026-06-12 02:37:58,314 INFO sqlalchemy.engine.Engine COMMIT
+{"ts": "2026-06-11T18:37:58.314931", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "COMMIT"}
+{"ts": "2026-06-11T18:37:58.361044", "level": "INFO", "logger": "app.services.backtest_service", "msg": "BacktestRun 1a6fc691-6742-4703-b593-f41aa772af10: fetched 7776 bars for EURUSD M5"}
+INFO:     ('127.0.0.1', 53605) - "WebSocket /ws/backtest/1a6fc691-6742-4703-b593-f41aa772af10?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIwY2MxMDY1MC05YTFlLTRjZjUtOTgzNS1mY2VlNDY1NGY4NTkiLCJlbWFpbCI6ImFkbWluQGFsZ29mb3JnZS5jb20iLCJyb2xlIjoiQU5BTFlTVCIsImV4cCI6MTc4MTIwMjk3NSwidHlwZSI6ImFjY2VzcyJ9.1UVtMqmlIbvd2hkucIbX7b0JavO2Xj7AmBpUNxYK618" [accepted]
+{"ts": "2026-06-11T18:37:59.501985", "level": "DEBUG", "logger": "main", "msg": "WebSocket connected for run_id=1a6fc691-6742-4703-b593-f41aa772af10"}
+INFO:     connection open
+2026-06-12 02:37:59,509 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:37:59.509119", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:37:59,514 INFO sqlalchemy.engine.Engine UPDATE backtest_runs SET status=$1::backteststatusenum, net_profit=$2::FLOAT, total_trades=$3::INTEGER, winning_trades=$4::INTEGER, losing_trades=$5::INTEGER, win_rate=$6::FLOAT, profit_factor=$7::FLOAT, max_drawdown=$8::FLOAT, max_drawdown_pct=$9::FLOAT, sharpe_ratio=$10::FLOAT, expectancy=$11::FLOAT, avg_trade_duration=$12::FLOAT, equity_curve=$13::JSON, log_output=$14::VARCHAR, completed_at=$15::TIMESTAMP WITH TIME ZONE WHERE backtest_runs.id = $16::UUID
+{"ts": "2026-06-11T18:37:59.514108", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "UPDATE backtest_runs SET status=$1::backteststatusenum, net_profit=$2::FLOAT, total_trades=$3::INTEGER, winning_trades=$4::INTEGER, losing_trades=$5::INTEGER, win_rate=$6::FLOAT, profit_factor=$7::FLOAT, max_drawdown=$8::FLOAT, max_drawdown_pct=$9::FLOAT, sharpe_ratio=$10::FLOAT, expectancy=$11::FLOAT, avg_trade_duration=$12::FLOAT, equity_curve=$13::JSON, log_output=$14::VARCHAR, completed_at=$15::TIMESTAMP WITH TIME ZONE WHERE backtest_runs.id = $16::UUID"}
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\logging\__init__.py", line 1163, in emit
+    stream.write(msg + self.terminator)
+  File "C:\Users\User\AppData\Local\Programs\Python\Python312\Lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeEncodeError: 'charmap' codec can't encode characters in position 483-542: character maps to <undefined>
+Call stack:
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2017, in commit
+    trans.commit(_to_root=True)
+  File "<string>", line 2, in commit
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1302, in commit
+    self._prepare_impl()
+  File "<string>", line 2, in _prepare_impl
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 1277, in _prepare_impl
+    self.session.flush()
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4341, in flush
+    self._flush(objects)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 4437, in _flush
+    flush_context.execute()
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 466, in execute
+    rec.execute(self)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\unitofwork.py", line 642, in execute
+    util.preloaded.orm_persistence.save_obj(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 85, in save_obj
+    _emit_update_statements(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\orm\persistence.py", line 912, in _emit_update_statements
+    c = connection.execute(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1418, in execute
+    return meth(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1904, in _exec_single_context
+    self._log_info(
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 190, in _log_info
+    self.engine.logger.info(message, *arg, **kw)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\log.py", line 159, in info
+    self.log(logging.INFO, msg, *args, **kwargs)
+  File "C:\Users\User\Documents\algo-forge\algoforge-backend\venv\Lib\site-packages\sqlalchemy\log.py", line 210, in log
+    self.logger._log(level, msg, args, **kwargs)
+Message: '[%s] %r'
+Arguments: ('generated in 0.00406s', ('COMPLETED', 0.0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, '[{"time": "2026-05-01 16:40:00+00:00", "balance": 10000.0}, {"time": "2026-05-01 16:45:00+00:00", "balance": 10000.0}, {"time": "2026-05-01 16:50:00+ ... (446686 characters truncated) ... 00+00:00", "balance": 10000.0}, {"time": "2026-06-08 23:50:00+00:00", "balance": 10000.0}, {"time": "2026-06-08 23:55:00+00:00", "balance": 10000.0}]', '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n ALGOFORGE BACKTEST ENGINE\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 ... (2446 characters truncated) ... \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\n[RESULT] Net P&L         : +$0.00  (+0.00%)\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501', datetime.datetime(2026, 6, 11, 18, 37, 59, 498828, tzinfo=datetime.timezone.utc), UUID('1a6fc691-6742-4703-b593-f41aa772af10')))
+{"ts": "2026-06-11T18:37:59.525535", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00406s] ('COMPLETED', 0.0, 0, 0, 0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, '[{\"time\": \"2026-05-01 16:40:00+00:00\", \"balance\": 10000.0}, {\"time\": \"2026-05-01 16:45:00+00:00\", \"balance\": 10000.0}, {\"time\": \"2026-05-01 16:50:00+ ... (446686 characters truncated) ... 00+00:00\", \"balance\": 10000.0}, {\"time\": \"2026-06-08 23:50:00+00:00\", \"balance\": 10000.0}, {\"time\": \"2026-06-08 23:55:00+00:00\", \"balance\": 10000.0}]', '\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\\n ALGOFORGE BACKTEST ENGINE\\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501 ... (2446 characters truncated) ... \u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\\n[RESULT] Net P&L         : +$0.00  (+0.00%)\\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501', datetime.datetime(2026, 6, 11, 18, 37, 59, 498828, tzinfo=datetime.timezone.utc), UUID('1a6fc691-6742-4703-b593-f41aa772af10'))"}
+2026-06-12 02:37:59,527 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:37:59.527944", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:37:59,527 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:37:59.527944", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:37:59,527 INFO sqlalchemy.engine.Engine [cached since 1.221s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:37:59.527944", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 1.221s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:37:59,529 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:37:59.529031", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+2026-06-12 02:37:59,550 INFO sqlalchemy.engine.Engine COMMIT
+{"ts": "2026-06-11T18:37:59.550662", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "COMMIT"}
+{"ts": "2026-06-11T18:37:59.551660", "level": "INFO", "logger": "app.services.backtest_service", "msg": "BacktestRun 1a6fc691-6742-4703-b593-f41aa772af10 completed. Trades: 0 | Net P&L: 0.00"}
+2026-06-12 02:38:01,535 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:38:01.535951", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:38:01,535 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:38:01.535951", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:38:01,535 INFO sqlalchemy.engine.Engine [cached since 3.229s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:38:01.535951", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 3.229s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:38:01,547 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:38:01.548464", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+{"ts": "2026-06-11T18:38:02.638805", "level": "DEBUG", "logger": "main", "msg": "WebSocket disconnected for run_id=1a6fc691-6742-4703-b593-f41aa772af10"}
+INFO:     connection closed
+INFO:     127.0.0.1:60481 - "OPTIONS /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56301 - "OPTIONS /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10/trades?page_size=500 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60481 - "OPTIONS /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10/equity-curve HTTP/1.1" 200 OK
+2026-06-12 02:38:02,648 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:38:02.648016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:38:02,648 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:38:02.648016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:38:02,648 INFO sqlalchemy.engine.Engine [cached since 4.341s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:38:02.648016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 4.341s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:38:02,648 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:38:02.648016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:38:02,649 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:38:02.649016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:38:02,649 INFO sqlalchemy.engine.Engine [cached since 4.342s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:38:02.649016", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 4.342s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:38:02,664 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:38:02.664034", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+2026-06-12 02:38:02,670 INFO sqlalchemy.engine.Engine SELECT trades.id, trades.backtest_run_id, trades.trade_number, trades.open_time, trades.close_time, trades.instrument, trades.direction, trades.entry_price, trades.exit_price, trades.stop_loss, trades.take_profit, trades.lot_size, trades.pips, trades.profit, trades.running_balance, trades.exit_reason 
+FROM trades 
+WHERE trades.backtest_run_id = $1::UUID ORDER BY trades.trade_number 
+ LIMIT $2::INTEGER OFFSET $3::INTEGER
+{"ts": "2026-06-11T18:38:02.670102", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT trades.id, trades.backtest_run_id, trades.trade_number, trades.open_time, trades.close_time, trades.instrument, trades.direction, trades.entry_price, trades.exit_price, trades.stop_loss, trades.take_profit, trades.lot_size, trades.pips, trades.profit, trades.running_balance, trades.exit_reason \nFROM trades \nWHERE trades.backtest_run_id = $1::UUID ORDER BY trades.trade_number \n LIMIT $2::INTEGER OFFSET $3::INTEGER"}
+2026-06-12 02:38:02,671 INFO sqlalchemy.engine.Engine [generated in 0.00024s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'), 500, 0)
+{"ts": "2026-06-11T18:38:02.671100", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00024s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'), 500, 0)"}
+INFO:     127.0.0.1:56301 - "GET /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10 HTTP/1.1" 200 OK
+2026-06-12 02:38:02,678 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+{"ts": "2026-06-11T18:38:02.678281", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "BEGIN (implicit)"}
+2026-06-12 02:38:02,678 INFO sqlalchemy.engine.Engine SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at 
+FROM backtest_runs 
+WHERE backtest_runs.id = $1::UUID
+{"ts": "2026-06-11T18:38:02.678281", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT backtest_runs.id, backtest_runs.strategy_id, backtest_runs.instrument, backtest_runs.timeframe, backtest_runs.date_from, backtest_runs.date_to, backtest_runs.initial_capital, backtest_runs.spread, backtest_runs.commission, backtest_runs.slippage, backtest_runs.status, backtest_runs.net_profit, backtest_runs.total_trades, backtest_runs.winning_trades, backtest_runs.losing_trades, backtest_runs.win_rate, backtest_runs.profit_factor, backtest_runs.max_drawdown, backtest_runs.max_drawdown_pct, backtest_runs.sharpe_ratio, backtest_runs.expectancy, backtest_runs.avg_trade_duration, backtest_runs.equity_curve, backtest_runs.log_output, backtest_runs.error_message, backtest_runs.started_at, backtest_runs.completed_at, backtest_runs.created_at \nFROM backtest_runs \nWHERE backtest_runs.id = $1::UUID"}
+2026-06-12 02:38:02,678 INFO sqlalchemy.engine.Engine [cached since 4.371s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:38:02.678281", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[cached since 4.371s ago] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:38:02,694 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:38:02.694197", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:56301 - "GET /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10/equity-curve HTTP/1.1" 200 OK
+2026-06-12 02:38:02,701 INFO sqlalchemy.engine.Engine SELECT count(*) AS count_1 
+FROM trades 
+WHERE trades.backtest_run_id = $1::UUID
+{"ts": "2026-06-11T18:38:02.701996", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "SELECT count(*) AS count_1 \nFROM trades \nWHERE trades.backtest_run_id = $1::UUID"}
+2026-06-12 02:38:02,701 INFO sqlalchemy.engine.Engine [generated in 0.00025s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)
+{"ts": "2026-06-11T18:38:02.701996", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "[generated in 0.00025s] (UUID('1a6fc691-6742-4703-b593-f41aa772af10'),)"}
+2026-06-12 02:38:02,703 INFO sqlalchemy.engine.Engine ROLLBACK
+{"ts": "2026-06-11T18:38:02.703068", "level": "INFO", "logger": "sqlalchemy.engine.Engine", "msg": "ROLLBACK"}
+INFO:     127.0.0.1:60481 - "GET /api/v1/backtest/1a6fc691-6742-4703-b593-f41aa772af10/trades?page_size=500 HTTP/1.1" 200 OK

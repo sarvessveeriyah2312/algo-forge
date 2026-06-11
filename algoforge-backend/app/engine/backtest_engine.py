@@ -26,8 +26,11 @@ _INDICATOR_MAP: dict[str, str] = {
     "EMA": "ema",
     "SMA": "sma",
     "VWAP": "vwap",
+    "VWAP_UPPER_TOUCH": "vwap_upper_touch",
+    "VWAP_LOWER_TOUCH": "vwap_lower_touch",
     "SUPERTREND": "supertrend",
     "ATR": "atr",
+    "ADX": "adx",
     "BOLLINGER": "bollinger_bands",
     "BB": "bollinger_bands",
     "KELTNER": "keltner_channel",
@@ -54,6 +57,7 @@ class BacktestConfig:
     slippage: float = 0.0
     risk_per_trade: float = 1.0
     max_daily_drawdown: float = 5.0
+    time_stop_bars: int = 0  # 0 = disabled; >0 = close after N bars if no TP/SL hit
 
 
 @dataclass
@@ -126,37 +130,123 @@ class BacktestEngine:
     # Public interface
     # ──────────────────────────────────────────────
 
+    # ── Logging helpers ──────────────────────────────────────────────────────
+
+    def _sep(self, char: str = "─", width: int = 60) -> None:
+        self._log.append(char * width)
+
+    def _fmt_duration(self, hours: float) -> str:
+        h = int(hours)
+        m = int((hours - h) * 60)
+        return f"{h}h {m:02d}m" if h else f"{m}m"
+
+    def _running_stats(self, trades: list[TradeResult]) -> str:
+        if not trades:
+            return "W:0 L:0 | WR: --"
+        w = sum(1 for t in trades if t.profit > 0)
+        l = len(trades) - w
+        wr = w / len(trades) * 100
+        net = sum(t.profit for t in trades)
+        sign = "+" if net >= 0 else ""
+        return f"W:{w} L:{l} | WR:{wr:.1f}% | Net:{sign}{net:.2f}"
+
     def run(self) -> BacktestResult:
         """Execute the full bar-by-bar backtest and return results."""
-        self._log.append(f"[BACKTEST] Starting backtest for strategy: {self.strategy.get('name', 'Unknown')}")
-        self._log.append(f"[BACKTEST] Instrument: {self.instrument} | Bars: {len(self.ohlcv)}")
-
-        # Calculate all indicators once over the full dataset
-        self._indicators_df = self._calculate_indicators(self.ohlcv)
-
-        entry_fn = parse_conditions(self.strategy.get("entry_conditions", []))
-        exit_fn = parse_conditions(self.strategy.get("exit_conditions", []))
+        cfg  = self.config
+        n    = len(self.ohlcv)
+        name = self.strategy.get("name", "Unknown")
         direction = self.strategy.get("direction", "BOTH")
 
-        balance = self.config.initial_capital
+        t_start = self.ohlcv.index[0]
+        t_end   = self.ohlcv.index[-1]
+        timeframe = self.strategy.get("timeframe", "?")
+
+        # ── Header ──────────────────────────────────────────────────────────
+        self._sep("━")
+        self._log.append(" ALGOFORGE BACKTEST ENGINE")
+        self._sep("━")
+        self._log.append(f"[INIT] Strategy  : {name}")
+        self._log.append(f"[INIT] Instrument: {self.instrument}  |  Timeframe: {timeframe}  |  Direction: {direction}")
+        self._log.append(f"[INIT] Date range: {t_start}  →  {t_end}")
+        self._log.append(f"[INIT] Bars total: {n}  |  Warmup: {WARMUP_PERIOD} bars  |  Active bars: {max(0, n - WARMUP_PERIOD)}")
+        self._log.append(f"[INIT] Capital   : ${cfg.initial_capital:,.2f}  |  Risk/Trade: {cfg.risk_per_trade:.2f}%  |  Max DD: {cfg.max_daily_drawdown:.2f}%")
+        self._log.append(f"[INIT] Costs     : Spread: {cfg.spread} pips  |  Commission: ${cfg.commission:.2f}  |  Slippage: {cfg.slippage:.5f}")
+        self._sep()
+
+        # ── Indicator calculation ────────────────────────────────────────────
+        self._log.append("[INDICATORS] Pre-calculating indicators over full dataset...")
+        self._indicators_df = self._calculate_indicators(self.ohlcv)
+
+        conditions = (
+            self.strategy.get("entry_conditions", [])
+            + self.strategy.get("exit_conditions", [])
+        )
+        ind_labels = []
+        for c in conditions:
+            ind = c.get("indicator", "")
+            params = c.get("params", {})
+            if ind:
+                period = params.get("period", "")
+                ind_labels.append(f"{ind.upper()}{'(' + str(period) + ')' if period else ''}")
+        unique_inds = list(dict.fromkeys(ind_labels))
+        self._log.append(f"[INDICATORS] Computed: {', '.join(unique_inds) if unique_inds else '(none)'}")
+        entry_count = len(self.strategy.get("entry_conditions", []))
+        exit_count  = len(self.strategy.get("exit_conditions",  []))
+        self._log.append(f"[INDICATORS] Entry conditions: {entry_count}  |  Exit conditions: {exit_count}")
+        self._sep()
+
+        entry_fn = parse_conditions(self.strategy.get("entry_conditions", []))
+        exit_fn  = parse_conditions(self.strategy.get("exit_conditions",  []))
+
+        balance      = cfg.initial_capital
         peak_balance = balance
         max_drawdown = 0.0
         trades: list[TradeResult] = []
-        equity_curve: list[dict] = []
+        equity_curve: list[dict]  = []
         trade_counter = 0
-        position: Optional[dict] = None
+        position: Optional[dict]  = None
 
-        pip_size = 0.0001  # default forex
-        pip_value = 10.0   # USD per pip per std lot (approximate)
+        # Instrument-aware pip sizing
+        instr_upper = self.instrument.upper()
+        if instr_upper in ("XAUUSD", "GOLD"):
+            pip_size  = 0.01    # gold: 1 pip = $0.01
+            pip_value = 1.0     # $1 per pip per lot for gold
+        elif instr_upper in ("USDJPY", "EURJPY", "GBPJPY", "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY"):
+            pip_size  = 0.01    # JPY pairs: 1 pip = 0.01
+            pip_value = 1.0
+        elif instr_upper in ("DXY", "USDX", "US_DI"):
+            pip_size  = 0.001   # US Dollar Index: quoted to 3 decimal places
+            pip_value = 1.0
+        else:
+            pip_size  = 0.0001  # standard forex: 1 pip = 0.0001
+            pip_value = 10.0
 
-        n = len(self.ohlcv)
         start_idx = min(WARMUP_PERIOD, n - 1)
 
+        # Progress checkpoint every 10 %
+        progress_step    = max(1, (n - start_idx) // 10)
+        next_progress_at = start_idx + progress_step
+        dd_warned_50     = False   # warned at 50 % of DD limit
+        dd_warned_80     = False   # warned at 80 % of DD limit
+
+        self._log.append(f"[ENGINE] Starting bar-by-bar loop from bar #{start_idx} ...")
+        self._sep()
+
         for idx in range(start_idx, n):
-            bar = self.ohlcv.iloc[idx]
+            bar      = self.ohlcv.iloc[idx]
             bar_time = self.ohlcv.index[idx]
 
-            # ── Check SL/TP/Exit on open of this bar ──
+            # ── Progress report ──────────────────────────────────────────
+            if idx >= next_progress_at:
+                pct  = int((idx - start_idx) / max(1, n - start_idx) * 100)
+                sign = "+" if balance >= cfg.initial_capital else ""
+                self._log.append(
+                    f"[PROGRESS] {pct:3d}% | Bar {idx}/{n} | {bar_time} | "
+                    f"Trades: {trade_counter} | Balance: ${balance:,.2f} ({sign}{balance - cfg.initial_capital:+.2f})"
+                )
+                next_progress_at += progress_step
+
+            # ── Check SL/TP on open of this bar ─────────────────────────
             if position is not None:
                 exit_triggered, exit_reason, exit_price = self._check_sl_tp(position, bar)
 
@@ -167,72 +257,147 @@ class BacktestEngine:
                     balance = trade.running_balance
                     trades.append(trade)
                     trade_counter += 1
+                    duration_h = (trade.close_time - trade.open_time).total_seconds() / 3600
+                    pnl_sign   = "+" if trade.profit >= 0 else ""
+                    sl_dist    = abs(trade.entry_price - (position.get("stop_loss") or trade.entry_price))
+                    tp_dist    = abs(trade.entry_price - (position.get("take_profit") or trade.entry_price))
+                    rr         = (tp_dist / sl_dist) if sl_dist > 0 else 0.0
                     self._log.append(
-                        f"[CLOSE #{trade_counter}] {trade.direction} | "
-                        f"Entry: {trade.entry_price:.5f} | Exit: {trade.exit_price:.5f} | "
-                        f"Profit: {trade.profit:.2f} | Reason: {trade.exit_reason} | Balance: {balance:.2f}"
+                        f"[CLOSE #{trade_counter:>3}] {trade.direction:<5} {trade.exit_reason:<6} | "
+                        f"Entry: {trade.entry_price:.5f} → Exit: {trade.exit_price:.5f} | "
+                        f"Pips: {pnl_sign}{trade.pips:.1f} | P&L: {pnl_sign}${trade.profit:.2f} | "
+                        f"Duration: {self._fmt_duration(duration_h)} | R:R achieved: 1:{rr:.2f} | "
+                        f"Balance: ${balance:,.2f}"
+                    )
+                    self._log.append(
+                        f"         Running  → {self._running_stats(trades)}"
                     )
                     position = None
                 else:
-                    # Check signal-based exit
-                    should_exit, sig_reason = self._check_exit(position, idx, self._indicators_df)
+                    # Signal-based exit
+                    should_exit, _ = self._check_exit(position, idx, self._indicators_df)
                     if should_exit:
-                        exit_pr = bar["close"]
-                        trade = self._close_position(
+                        exit_pr = float(bar["close"])
+                        trade   = self._close_position(
                             position, exit_pr, bar_time, "SIGNAL", balance, pip_size, trade_counter
                         )
                         balance = trade.running_balance
                         trades.append(trade)
                         trade_counter += 1
+                        duration_h = (trade.close_time - trade.open_time).total_seconds() / 3600
+                        pnl_sign   = "+" if trade.profit >= 0 else ""
                         self._log.append(
-                            f"[CLOSE #{trade_counter}] {trade.direction} SIGNAL | "
-                            f"Exit: {trade.exit_price:.5f} | Profit: {trade.profit:.2f} | Balance: {balance:.2f}"
+                            f"[CLOSE #{trade_counter:>3}] {trade.direction:<5} SIGNAL | "
+                            f"Entry: {trade.entry_price:.5f} → Exit: {trade.exit_price:.5f} | "
+                            f"Pips: {pnl_sign}{trade.pips:.1f} | P&L: {pnl_sign}${trade.profit:.2f} | "
+                            f"Duration: {self._fmt_duration(duration_h)} | Balance: ${balance:,.2f}"
+                        )
+                        self._log.append(
+                            f"         Running  → {self._running_stats(trades)}"
                         )
                         position = None
 
-            # ── Check daily drawdown ──
+            # ── Drawdown check ────────────────────────────────────────────
             current_dd_pct = ((peak_balance - balance) / peak_balance * 100) if peak_balance > 0 else 0.0
-            if not validate_drawdown(current_dd_pct, self.config.max_daily_drawdown):
+            dd_limit       = cfg.max_daily_drawdown
+
+            if current_dd_pct >= dd_limit * 0.5 and not dd_warned_50:
                 self._log.append(
-                    f"[RISK] Daily drawdown limit reached ({current_dd_pct:.2f}%). Skipping bar {idx}."
+                    f"[RISK ] DD WARNING  50% of limit | Current: {current_dd_pct:.2f}% | Limit: {dd_limit:.2f}% | {bar_time}"
+                )
+                dd_warned_50 = True
+            if current_dd_pct >= dd_limit * 0.8 and not dd_warned_80:
+                self._log.append(
+                    f"[RISK ] DD WARNING  80% of limit | Current: {current_dd_pct:.2f}% | Limit: {dd_limit:.2f}% | {bar_time}"
+                )
+                dd_warned_80 = True
+
+            if not validate_drawdown(current_dd_pct, dd_limit):
+                self._log.append(
+                    f"[RISK ] DD LIMIT HIT {current_dd_pct:.2f}% ≥ {dd_limit:.2f}% | "
+                    f"Bar: {bar_time} | No new entries until reset."
                 )
                 equity_curve.append({"time": str(bar_time), "balance": balance})
                 if balance > peak_balance:
-                    peak_balance = balance
+                    peak_balance  = balance
+                    dd_warned_50  = False
+                    dd_warned_80  = False
                 drawdown = peak_balance - balance
                 if drawdown > max_drawdown:
                     max_drawdown = drawdown
                 continue
 
-            # ── Entry logic (only if no open position) ──
+            # Reset DD warnings when balance recovers above peak
+            if balance >= peak_balance:
+                dd_warned_50 = False
+                dd_warned_80 = False
+
+            # ── Time stop ─────────────────────────────────────────────────
+            if position is not None and cfg.time_stop_bars > 0:
+                bars_held = idx - position["open_idx"]
+                if bars_held >= cfg.time_stop_bars:
+                    exit_pr = float(bar["close"])
+                    trade = self._close_position(position, exit_pr, bar_time, "TIME", balance, pip_size, trade_counter)
+                    balance = trade.running_balance
+                    trades.append(trade)
+                    trade_counter += 1
+                    duration_h = (trade.close_time - trade.open_time).total_seconds() / 3600
+                    pnl_sign = "+" if trade.profit >= 0 else ""
+                    self._log.append(
+                        f"[CLOSE #{trade_counter:>3}] {trade.direction:<5} TIME   | "
+                        f"Entry: {trade.entry_price:.5f} → Exit: {trade.exit_price:.5f} | "
+                        f"Pips: {pnl_sign}{trade.pips:.1f} | P&L: {pnl_sign}${trade.profit:.2f} | "
+                        f"Duration: {self._fmt_duration(duration_h)} ({bars_held} bars) | Balance: ${balance:,.2f}"
+                    )
+                    self._log.append(f"         Running  → {self._running_stats(trades)}")
+                    position = None
+
+            # ── Entry logic ───────────────────────────────────────────────
             if position is None:
-                entry_dir, entry_price = self._check_entry(idx, self._indicators_df, direction, entry_fn)
+                if self._evaluate_filters(idx, self._indicators_df):
+                    entry_dir, entry_price = self._check_entry(idx, self._indicators_df, direction, entry_fn, pip_size)
+                else:
+                    entry_dir, entry_price = "NONE", 0.0
 
                 if entry_dir != "NONE":
                     sl_price, tp_price = self._calculate_sl_tp(entry_dir, idx, entry_price, pip_size)
-                    lot = self._size_position(balance, self.config.risk_per_trade, entry_price, sl_price, pip_value)
+                    lot = self._size_position(balance, cfg.risk_per_trade, entry_price, sl_price, pip_value)
+                    risk_amt = balance * cfg.risk_per_trade / 100
+                    sl_pips  = abs(entry_price - sl_price) / pip_size
+                    tp_pips  = abs(entry_price - tp_price) / pip_size
+                    rr_ratio = tp_pips / sl_pips if sl_pips > 0 else 0.0
 
                     position = {
-                        "direction": entry_dir,
+                        "direction":   entry_dir,
                         "entry_price": entry_price,
-                        "stop_loss": sl_price,
+                        "stop_loss":   sl_price,
                         "take_profit": tp_price,
-                        "lot_size": lot,
-                        "open_time": bar_time,
-                        "open_idx": idx,
+                        "lot_size":    lot,
+                        "pip_value":   pip_value,
+                        "open_time":   bar_time,
+                        "open_idx":    idx,
                     }
                     self._log.append(
-                        f"[OPEN] {entry_dir} @ {entry_price:.5f} | SL: {sl_price:.5f} | "
-                        f"TP: {tp_price:.5f} | Lots: {lot:.2f} | Balance: {balance:.2f}"
+                        f"[OPEN  #{trade_counter + 1:>3}] {entry_dir:<5} @ {entry_price:.5f} | "
+                        f"SL: {sl_price:.5f} ({sl_pips:.1f} pips) | "
+                        f"TP: {tp_price:.5f} ({tp_pips:.1f} pips) | "
+                        f"R:R: 1:{rr_ratio:.2f} | Lots: {lot:.2f} | Risk: ${risk_amt:.2f}"
+                    )
+                    self._log.append(
+                        f"         Bar      : {bar_time} | "
+                        f"O:{float(bar['open']):.5f} H:{float(bar['high']):.5f} "
+                        f"L:{float(bar['low']):.5f} C:{float(bar['close']):.5f} | "
+                        f"Balance: ${balance:,.2f}"
                     )
 
-            # ── Equity curve ──
+            # ── Equity curve ──────────────────────────────────────────────
             unrealized = 0.0
             if position is not None:
+                _pv = position.get("pip_value", pip_value)
                 if position["direction"] == "LONG":
-                    unrealized = (bar["close"] - position["entry_price"]) / pip_size * pip_value * position["lot_size"]
+                    unrealized = (float(bar["close"]) - position["entry_price"]) / pip_size * _pv * position["lot_size"]
                 else:
-                    unrealized = (position["entry_price"] - bar["close"]) / pip_size * pip_value * position["lot_size"]
+                    unrealized = (position["entry_price"] - float(bar["close"])) / pip_size * _pv * position["lot_size"]
 
             equity_curve.append({"time": str(bar_time), "balance": balance + unrealized})
 
@@ -242,21 +407,25 @@ class BacktestEngine:
             if drawdown > max_drawdown:
                 max_drawdown = drawdown
 
-        # ── Close any remaining open position at last bar ──
+        # ── Close any remaining open position at last bar ─────────────────
         if position is not None:
-            last_bar = self.ohlcv.iloc[-1]
+            last_bar  = self.ohlcv.iloc[-1]
             last_time = self.ohlcv.index[-1]
-            exit_pr = float(last_bar["close"])
-            trade = self._close_position(position, exit_pr, last_time, "EOD", balance, pip_size, trade_counter)
-            balance = trade.running_balance
+            exit_pr   = float(last_bar["close"])
+            trade     = self._close_position(position, exit_pr, last_time, "EOD", balance, pip_size, trade_counter)
+            balance   = trade.running_balance
             trades.append(trade)
             trade_counter += 1
+            duration_h = (trade.close_time - trade.open_time).total_seconds() / 3600
+            pnl_sign   = "+" if trade.profit >= 0 else ""
             self._log.append(
-                f"[CLOSE EOD #{trade_counter}] {trade.direction} | "
-                f"Exit: {trade.exit_price:.5f} | Profit: {trade.profit:.2f} | Balance: {balance:.2f}"
+                f"[CLOSE #{trade_counter:>3}] {trade.direction:<5} EOD    | "
+                f"Entry: {trade.entry_price:.5f} → Exit: {trade.exit_price:.5f} | "
+                f"Pips: {pnl_sign}{trade.pips:.1f} | P&L: {pnl_sign}${trade.profit:.2f} | "
+                f"Duration: {self._fmt_duration(duration_h)} | Balance: ${balance:,.2f}"
             )
 
-        stats = self._calculate_stats(trades, equity_curve, self.config.initial_capital)
+        stats = self._calculate_stats(trades, equity_curve, cfg.initial_capital)
 
         result = BacktestResult(
             trades=trades,
@@ -274,11 +443,51 @@ class BacktestEngine:
             avg_trade_duration=stats["avg_trade_duration"],
             log_lines=self._log,
         )
-        self._log.append(
-            f"[BACKTEST] Complete. Trades: {result.total_trades} | "
-            f"Net P&L: {result.net_profit:.2f} | Win Rate: {result.win_rate:.1f}% | "
-            f"Max DD: {result.max_drawdown:.2f} | Sharpe: {result.sharpe_ratio:.2f}"
-        )
+
+        # ── Final summary ────────────────────────────────────────────────
+        self._sep()
+        self._sep("━")
+        self._log.append(" BACKTEST COMPLETE")
+        self._sep("━")
+        net_pct  = (result.net_profit / cfg.initial_capital * 100) if cfg.initial_capital > 0 else 0.0
+        net_sign = "+" if result.net_profit >= 0 else ""
+        self._log.append(f"[RESULT] Strategy        : {name}")
+        self._log.append(f"[RESULT] Period          : {t_start}  →  {t_end}")
+        self._sep()
+        self._log.append(f"[RESULT] Total Trades    : {result.total_trades}")
+        self._log.append(f"[RESULT] Win / Loss      : {result.winning_trades}W / {result.losing_trades}L  (Win Rate: {result.win_rate:.1f}%)")
+        self._sep()
+        self._log.append(f"[RESULT] Net P&L         : {net_sign}${result.net_profit:,.2f}  ({net_sign}{net_pct:.2f}%)")
+        if trades:
+            gross_profit = sum(t.profit for t in trades if t.profit > 0)
+            gross_loss   = abs(sum(t.profit for t in trades if t.profit < 0))
+            best_trade   = max(trades, key=lambda t: t.profit)
+            worst_trade  = min(trades, key=lambda t: t.profit)
+            self._log.append(f"[RESULT] Gross Profit    : +${gross_profit:,.2f}")
+            self._log.append(f"[RESULT] Gross Loss      : -${gross_loss:,.2f}")
+            self._log.append(f"[RESULT] Profit Factor   : {result.profit_factor:.2f}")
+            self._sep()
+            self._log.append(f"[RESULT] Max Drawdown    : ${result.max_drawdown:,.2f}  ({result.max_drawdown_pct:.2f}%)")
+            self._log.append(f"[RESULT] Sharpe Ratio    : {result.sharpe_ratio:.2f}")
+            self._log.append(f"[RESULT] Expectancy      : {net_sign}${result.expectancy:.2f} / trade")
+            self._log.append(f"[RESULT] Avg Duration    : {self._fmt_duration(result.avg_trade_duration)}")
+            self._sep()
+            self._log.append(f"[RESULT] Best Trade      : +${best_trade.profit:.2f}  (Trade #{best_trade.trade_number}  {best_trade.open_time})")
+            self._log.append(f"[RESULT] Worst Trade     : -${abs(worst_trade.profit):.2f}  (Trade #{worst_trade.trade_number}  {worst_trade.open_time})")
+
+            # Consecutive wins / losses
+            max_consec_w = max_consec_l = cur_w = cur_l = 0
+            for t in trades:
+                if t.profit > 0:
+                    cur_w += 1; cur_l = 0
+                else:
+                    cur_l += 1; cur_w = 0
+                max_consec_w = max(max_consec_w, cur_w)
+                max_consec_l = max(max_consec_l, cur_l)
+            self._log.append(f"[RESULT] Max Consec Wins : {max_consec_w}")
+            self._log.append(f"[RESULT] Max Consec Loss : {max_consec_l}")
+
+        self._sep("━")
         return result
 
     # ──────────────────────────────────────────────
@@ -290,17 +499,24 @@ class BacktestEngine:
         Compute all indicators referenced in strategy conditions.
         Columns are named like RSI_14, EMA_50, EMA_200, etc.
         """
-        from app.engine.indicators.trend import ema, sma, vwap, supertrend
-        from app.engine.indicators.momentum import rsi, macd, stochastic, cci, williams_r
+        from app.engine.indicators.trend import ema, sma, vwap, supertrend, vwap_bands
+        from app.engine.indicators.momentum import rsi, macd, stochastic, cci, williams_r, adx
         from app.engine.indicators.volatility import atr, bollinger_bands, keltner_channel
         from app.engine.indicators.volume import obv, cmf
         from app.engine.indicators.ict import detect_fvg, detect_order_blocks, detect_bos, detect_swing_highs_lows
 
         ind_df = df[["open", "high", "low", "close", "volume"]].copy()
 
+        # Include filter indicator references so their columns are pre-computed
+        filter_conds = [
+            {"indicator": k.upper(), "params": {pk: pv for pk, pv in v.items() if pk != "threshold"}}
+            for k, v in self.strategy.get("filters", {}).items()
+        ]
+
         conditions = (
             self.strategy.get("entry_conditions", [])
             + self.strategy.get("exit_conditions", [])
+            + filter_conds
         )
 
         seen: set[str] = set()
@@ -348,7 +564,7 @@ class BacktestEngine:
 
                     elif ind_upper in ("BOLLINGER", "BB"):
                         period = int(params.get("period", 20))
-                        std = float(params.get("std_dev", 2.0))
+                        std = float(params.get("std_dev", params.get("stdDev", 2.0)))
                         bb_df = bollinger_bands(df["close"], period, std)
                         ind_df[f"{col}_upper"] = bb_df["upper"]
                         ind_df[f"{col}_middle"] = bb_df["middle"]
@@ -402,6 +618,30 @@ class BacktestEngine:
                         period = int(params.get("period", 20))
                         ind_df[col] = cmf(df, period)
 
+                    elif ind_upper == "ADX":
+                        period = int(params.get("period", 14))
+                        ind_df[col] = adx(df, period)
+
+                    elif ind_upper == "VWAP_UPPER_TOUCH":
+                        # Returns 1.0 when close is above the upper VWAP band (SHORT mean-reversion signal)
+                        mult = float(params.get("multiplier", 1.5))
+                        try:
+                            bands = vwap_bands(df, mult)
+                            ind_df[col] = (df["close"] > bands["upper"]).astype(float)
+                        except Exception as e:
+                            logger.warning("VWAP_UPPER_TOUCH failed: %s", e)
+                            ind_df[col] = 0.0
+
+                    elif ind_upper == "VWAP_LOWER_TOUCH":
+                        # Returns 1.0 when close is below the lower VWAP band (LONG mean-reversion signal)
+                        mult = float(params.get("multiplier", 1.5))
+                        try:
+                            bands = vwap_bands(df, mult)
+                            ind_df[col] = (df["close"] < bands["lower"]).astype(float)
+                        except Exception as e:
+                            logger.warning("VWAP_LOWER_TOUCH failed: %s", e)
+                            ind_df[col] = 0.0
+
                     elif ind_upper == "FVG":
                         min_gap = float(params.get("min_gap_pips", 1.0))
                         fvg_df = detect_fvg(df, min_gap)
@@ -436,8 +676,33 @@ class BacktestEngine:
 
                 except Exception as exc:
                     logger.error("Failed to calculate indicator %s: %s", col, exc, exc_info=True)
+                    self._log.append(f"[INDICATORS] ERROR calculating {col}: {exc}")
 
         return ind_df
+
+    def _evaluate_filters(self, idx: int, indicators_df: pd.DataFrame) -> bool:
+        """
+        Evaluate filter blocks. Returns False if any filter blocks entry.
+        Currently supported filters:
+          - adx: blocks entry when ADX >= threshold (trending market filter for mean reversion)
+        """
+        filters = self.strategy.get("filters", {})
+        if not filters:
+            return True
+
+        for indicator_id, params in filters.items():
+            ind_upper = indicator_id.upper()
+
+            if ind_upper == "ADX":
+                period = int(params.get("period", 14))
+                threshold = float(params.get("threshold", 25.0))
+                col = _col_name("ADX", {"period": period})
+                if col in indicators_df.columns:
+                    adx_val = indicators_df[col].iloc[idx]
+                    if not pd.isna(adx_val) and float(adx_val) >= threshold:
+                        return False  # Trending — block mean-reversion entry
+
+        return True
 
     def _check_entry(
         self,
@@ -445,6 +710,7 @@ class BacktestEngine:
         indicators_df: pd.DataFrame,
         direction: str,
         entry_fn,
+        pip_size: float = 0.0001,
     ) -> tuple[str, float]:
         """
         Returns (direction_str, entry_price).
@@ -455,7 +721,8 @@ class BacktestEngine:
             return ("NONE", 0.0)
 
         bar = self.ohlcv.iloc[idx]
-        entry_price = float(bar["close"]) + self.config.slippage
+        # slippage is in pips/ticks — convert to price distance before adding
+        entry_price = float(bar["close"]) + self.config.slippage * pip_size
 
         if direction == "LONG":
             return ("LONG", entry_price)
@@ -567,7 +834,7 @@ class BacktestEngine:
         direction = position["direction"]
         entry_price = position["entry_price"]
         lot_size = position["lot_size"]
-        pip_value = 10.0  # USD per pip per std lot
+        pip_value = position.get("pip_value", 10.0)
 
         if direction == "LONG":
             pips = (exit_price - entry_price) / pip_size
